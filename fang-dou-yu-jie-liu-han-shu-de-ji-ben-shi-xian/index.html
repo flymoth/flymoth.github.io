@@ -1,0 +1,277 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+    防抖与节流函数的基本实现 | flymoth&#39;s blog 
+</title>
+<link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588216971333">
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://flymoth.github.io/styles/main.css">
+<!-- js -->
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://flymoth.github.io/media/js/jquery.sticky-sidebar.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+        
+            
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+                
+
+                    
+                            
+</head>
+
+<body>
+    <div class="main">
+        <div class="header">
+    <div class="nav">
+        <div class="logo">
+            <a href="https://flymoth.github.io">
+                <img class="avatar" src="https://flymoth.github.io/images/avatar.png?v=1588216971333" alt="">
+            </a>
+            <div class="site-title">
+                <h1>
+                    flymoth&#39;s blog 
+                </h1>
+            </div>
+        </div>
+        <span class="menu-btn fa fa-align-justify"></span>
+        <div class="menu-container">
+            <ul>
+                
+                    
+                            <li>
+                                <a href="/" class="menu">
+                                    首页
+                                </a>
+                            </li>
+                            
+                                
+                    
+                            <li>
+                                <a href="/archives" class="menu">
+                                    归档
+                                </a>
+                            </li>
+                            
+                                
+                    
+                            <li>
+                                <a href="/tags" class="menu">
+                                    标签
+                                </a>
+                            </li>
+                            
+                                
+                    
+                            <li>
+                                <a href="/post/about" class="menu">
+                                    关于
+                                </a>
+                            </li>
+                            
+                                
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $(".menu-btn").click(function() {
+            $(".menu-container").slideToggle();
+        });
+        $(window).resize(function() {
+
+            if (window.matchMedia('(min-width: 960px)').matches) {
+                $(".menu-container").css('display', 'block')
+            } else {
+                $(".menu-container").css('display', 'none')
+            }
+
+        });
+    });
+</script>
+
+            <div id="main-content" class="post-detail main-container">
+                <!-- left -->
+                <div id="content" class="main-container-left">
+                    <article class="post i-card">
+                        <h2 class="post-title">
+                            防抖与节流函数的基本实现
+                        </h2>
+                        <div class="post-info">
+                            <time class="post-time">2020-04-30</time>
+                            
+                                <a href="https://flymoth.github.io/tag/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-">
+                            #JavaScript
+                        </a>
+                                
+                                <a href="https://flymoth.github.io/tag/d6wmA7zQk/" class="post-tag i-tag
+                            i-tag-">
+                            #前端性能优化
+                        </a>
+                                
+                        </div>
+                        
+                                <div class="post-content">
+                                    <p>在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。<br>
+通常这种情况下我们怎么去解决的呢？一般来讲，防抖和节流是比较好的解决方案。</p>
+<h2 id="节流">节流</h2>
+<p>如果短时间内大量触发同一事件，那么在函数执行一次之后，该函数在指定的时间期限内不再工作，直至过了这段时间才重新生效。</p>
+<pre><code> function throttle(fn, delay,...arguments) {
+     let prev = Date.now()
+     let args = [...arguments]
+     return function () {
+         let cur = Date.now()
+         if (cur - prev &gt;= delay) {
+             fn.call(this, ...args)
+             prev = Date.now()
+         }
+     }
+ }
+ //demo
+ function fn(n) {
+    console.log(n)
+}
+addEventListener('scroll', throttle(fn,1000,1))
+</code></pre>
+<h3 id="防抖">防抖</h3>
+<p>在第一次触发事件时，不立即执行函数，而是给出一个期限值比如200ms，然后：<br>
+如果在200ms内没有再次触发滚动事件，那么就执行函数<br>
+如果在200ms内再次触发滚动事件，那么当前的计时取消，重新开始计时<br>
+效果：如果短时间内大量触发同一事件，只会执行一次函数。</p>
+<pre><code> function debounce(fn, delay, ...arguments) {
+     let timer = null
+     let args = [...arguments]
+     return function () {l
+         clearTimeout(timer)
+         timer = setTimeout(() =&gt; {
+             fn.call(this, ...args)
+         }, delay)
+     }
+ }
+ //demo
+ function fn(n) {
+    console.log(n)
+}
+addEventListener('scroll', debounce(fn, 1000,2))
+</code></pre>
+
+                                </div>
+                    </article>
+                    <!--  -->
+                    
+                            <div id="disqus_thread"></div>
+                            <div id="gitalk-container"></div>
+                </div>
+                <!-- middle -->
+                <div class="main-container-middle"></div>
+                <!-- right -->
+                <div id="sidebar" class="main-container-right">
+                    
+                        <!-- toc -->
+                        
+    <div class="toc-card i-card ">
+        <div class="toc-title i-card-title">目录</div>
+        <div class="toc-content">
+            <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E8%8A%82%E6%B5%81">节流</a>
+<ul>
+<li><a href="#%E9%98%B2%E6%8A%96">防抖</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+        <script>
+            function locateCatelogList() {
+                /*获取文章目录集合,可通过:header过滤器*/
+                var alis = $('.post-content :header');
+                /*获取侧边栏目录列表集合**/
+                var sidebar_alis = $('.markdownIt-TOC a');
+                /*获取滚动条到顶部的距离*/
+                var scroll_height = $(window).scrollTop();
+                for (var i = 0; i < alis.length; i++) {
+                    /*获取锚点集合中的元素分别到顶点的距离*/
+                    var a_height = $(alis[i]).offset().top;
+                    if (a_height < scroll_height) {
+                        /*高亮显示*/
+                        sidebar_alis.removeClass('on');
+                        $(sidebar_alis[i]).addClass('on');
+                    }
+                }
+            }
+            $(function() {
+                /*绑定滚动事件 */
+                $(window).bind('scroll', locateCatelogList);
+            });
+        </script>
+    </div>
+    
+                            
+
+                </div>
+
+
+
+
+            </div>
+
+
+            <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+<span> | </span>
+<a href="https://github.com/flymoth" target="_blank">flymoth</a> | 
+  <a class="rss" href="https://flymoth.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+
+    </div>
+    <script>
+        $('#sidebar').stickySidebar({
+            topSpacing: 80,
+            // bottomSpacing: 60
+        });
+    </script>
+    
+        
+            <script>
+    window.onload = function() {
+        var gitalk = new Gitalk({
+            clientID: '',
+            clientSecret: '',
+            repo: '',
+            owner: '',
+            admin: [''],
+            id: (location.pathname).substring(0, 49), // Ensure uniqueness and length less than 50
+            distractionFreeMode: false // Facebook-like distraction free mode
+        })
+
+        gitalk.render('gitalk-container')
+    }
+</script>
+                
+
+                    
+                                
+</body>
+
+</html>

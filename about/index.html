@@ -5,7 +5,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>
-    flymoth&#39;s blog 
+    关于 | flymoth&#39;s blog 
 </title>
 <link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588216971333">
 <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
@@ -19,6 +19,14 @@
 <script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
 
 
+        
+            
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+                
+
+                    
+                            
 </head>
 
 <body>
@@ -93,125 +101,89 @@
     });
 </script>
 
-            <div id="main-content" class="post-container main-container">
+            <div id="main-content" class="post-detail main-container">
+                <!-- left -->
                 <div id="content" class="main-container-left">
-                    
-        
-            <article class="post i-card">
-                <h2 class="post-title">
-                    <a href="https://flymoth.github.io/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">
-                        防抖与节流函数的基本实现
-                    </a>
-                </h2>
-                <div class="post-info">
-                    <time class="post-time">2020-04-30</time>
-                    
-                        <a href="https://flymoth.github.io/tag/7eQGWBiUx/" class="post-tag i-tag
-                            i-tag-other_2">
-            #JavaScript
-        </a>
-                        
-                        <a href="https://flymoth.github.io/tag/d6wmA7zQk/" class="post-tag i-tag
-                            i-tag-success">
-            #前端性能优化
-        </a>
-                        
-                </div>
-                <div class="post-article">
-                    
-                            <div class="post-content">
-                                
-                                        <div class="post-content-content">
-                                            在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。
-通常这种情况下我们怎么去解决的呢？一般来讲，防抖和节流是比较好的解决方案。
-节流
-如果短时间内大量触发同一事件，那么在函数执行一次之后，该函数在指定的时间期限内不再工作，直至过了这段时间才重新生效。
- function throttle(fn, delay,...arguments) {
-     let prev = Date.now()
-     let args = [...arguments]
-     return function () {
-         let cur = Date.now()
-         if (cur - prev &amp;gt;= delay) {
-             fn.call(this, ...args)
-             prev = Date.now()
-         }
-     }
- }
- //demo
- function fn(n) {
-    console.log(n)
-}
-addEventListener(&#39;scroll&#39;, throttle(fn,1000,1))
-
-防抖
-在第一次触发事件时，不立即执行函数，而是给出一个期限值比如200ms，然后：
-如果在200ms内没有再次触发滚动事件，那么就执行函数
-如果在200ms内再次触发滚动事件，那么当前的计时取消，重新开始计时
-效果：如果短时间内大量触发同一事件，只会执行一次函数。
- function debounce(fn, delay, ...arguments) {
-     let timer = null
-     let args = [...arguments]
-     return function () {l
-         clearTimeout(timer)
-         timer = setTimeout(() =&amp;gt; {
-             fn.call(this, ...args)
-         }, delay)
-     }
- }
- //demo
- function fn(n) {
-    console.log(n)
-}
-addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
-
-
-                                        </div>
-                                        
-                                            <a class="btn btn-text" href="https://flymoth.github.io/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">Read More ~</a>
-                            </div>
-                </div>
-            </article>
-            
-                <!-- 翻页 -->
-                
-                </div>
-                <!--  -->
-                <div class="main-container-middle"></div>
-                <!--  -->
-                <div id="sidebar" class="main-container-right">
-
-                    <!-- 个人信息 -->
-                    
-    <div class="id_card i-card">
-        <div class="id_card-avatar" style="background-image: url(https://flymoth.github.io/images/avatar.png?v=1588216971333)">
-        </div>
-        <h1 class="id_card-title">
-            flymoth&#39;s blog 
-        </h1>
-        <h2 class="id_card-description">
-            for dream.
-        </h2>
-        <!--  -->
-        <div class="id_card-sns">
-            <!-- github -->
-            
-                    <!-- twitter -->
-                    
-                            <!-- weibo -->
+                    <article class="post i-card">
+                        <h2 class="post-title">
+                            关于
+                        </h2>
+                        <div class="post-info">
+                            <time class="post-time">2019-01-25</time>
                             
-                                    <!-- facebook -->
-                                    
+                        </div>
+                        
+                                <div class="post-content">
+                                    <blockquote>
+<p>欢迎来到我的小站呀，很高兴遇见你！🤝</p>
+</blockquote>
+<h2 id="关于本站">🏠 关于本站</h2>
+<h2 id="博主是谁">👨‍💻 博主是谁</h2>
+<h2 id="兴趣爱好">⛹ 兴趣爱好</h2>
+<h2 id="联系我呀">📬 联系我呀</h2>
+
+                                </div>
+                    </article>
+                    <!--  -->
+                    
+                            <div id="disqus_thread"></div>
+                            <div id="gitalk-container"></div>
+                </div>
+                <!-- middle -->
+                <div class="main-container-middle"></div>
+                <!-- right -->
+                <div id="sidebar" class="main-container-right">
+                    
+                        <!-- toc -->
+                        
+    <div class="toc-card i-card ">
+        <div class="toc-title i-card-title">目录</div>
+        <div class="toc-content">
+            <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E5%85%B3%E4%BA%8E%E6%9C%AC%E7%AB%99">🏠 关于本站</a></li>
+<li><a href="#%E5%8D%9A%E4%B8%BB%E6%98%AF%E8%B0%81">👨‍💻 博主是谁</a></li>
+<li><a href="#%E5%85%B4%E8%B6%A3%E7%88%B1%E5%A5%BD">⛹ 兴趣爱好</a></li>
+<li><a href="#%E8%81%94%E7%B3%BB%E6%88%91%E5%91%80">📬 联系我呀</a></li>
+</ul>
+</li>
+</ul>
 
         </div>
+        <script>
+            function locateCatelogList() {
+                /*获取文章目录集合,可通过:header过滤器*/
+                var alis = $('.post-content :header');
+                /*获取侧边栏目录列表集合**/
+                var sidebar_alis = $('.markdownIt-TOC a');
+                /*获取滚动条到顶部的距离*/
+                var scroll_height = $(window).scrollTop();
+                for (var i = 0; i < alis.length; i++) {
+                    /*获取锚点集合中的元素分别到顶点的距离*/
+                    var a_height = $(alis[i]).offset().top;
+                    if (a_height < scroll_height) {
+                        /*高亮显示*/
+                        sidebar_alis.removeClass('on');
+                        $(sidebar_alis[i]).addClass('on');
+                    }
+                }
+            }
+            $(function() {
+                /*绑定滚动事件 */
+                $(window).bind('scroll', locateCatelogList);
+            });
+        </script>
     </div>
     
-
-                        <!-- 公告栏 -->
-                        
+                            
 
                 </div>
-            </div>
 
+
+
+
+            </div>
 
 
             <div class="site-footer">
@@ -225,6 +197,7 @@ addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
   hljs.initHighlightingOnLoad()
 </script>
 
+
     </div>
     <script>
         $('#sidebar').stickySidebar({
@@ -232,6 +205,27 @@ addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
             // bottomSpacing: 60
         });
     </script>
+    
+        
+            <script>
+    window.onload = function() {
+        var gitalk = new Gitalk({
+            clientID: '',
+            clientSecret: '',
+            repo: '',
+            owner: '',
+            admin: [''],
+            id: (location.pathname).substring(0, 49), // Ensure uniqueness and length less than 50
+            distractionFreeMode: false // Facebook-like distraction free mode
+        })
+
+        gitalk.render('gitalk-container')
+    }
+</script>
+                
+
+                    
+                                
 </body>
 
 </html>
