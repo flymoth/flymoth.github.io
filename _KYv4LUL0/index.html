@@ -5,7 +5,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>
-    前端性能优化 | flymoth&#39;s blog 
+    ES6 数组方法map(),filter(),reduce()和find() | flymoth&#39;s blog 
 </title>
 <link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588225548416">
 <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
@@ -19,6 +19,14 @@
 <script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
 
 
+        
+            
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+                
+
+                    
+                            
 </head>
 
 <body>
@@ -93,100 +101,92 @@
     });
 </script>
 
-            <div id="main-content" class="post-container main-container">
+            <div id="main-content" class="post-detail main-container">
+                <!-- left -->
                 <div id="content" class="main-container-left">
-                    
-    <div class="i-card">
-        <b>标签：#
-        前端性能优化</b>
-    </div>
-    
-        
-            <article class="post i-card">
-                <h2 class="post-title">
-                    <a href="https://flymoth.github.io/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">
-                        防抖与节流函数的基本实现
-                    </a>
-                </h2>
-                <div class="post-info">
-                    <time class="post-time">2020-04-30</time>
-                    
-                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
-                            i-tag-success">
-            #JavaScript
-        </a>
-                        
-                        <a href="https://flymoth.github.io/d6wmA7zQk/" class="post-tag i-tag
-                            i-tag-">
-            #前端性能优化
-        </a>
-                        
-                </div>
-                <div class="post-article">
-                    
-                            <div class="post-content">
+                    <article class="post i-card">
+                        <h2 class="post-title">
+                            ES6 数组方法map(),filter(),reduce()和find()
+                        </h2>
+                        <div class="post-info">
+                            <time class="post-time">2018-06-14</time>
+                            
+                                <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-other_2">
+                            #JavaScript
+                        </a>
                                 
-                                        <div class="post-content-content">
-                                            在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。
-通常这种情况下我们怎么去解决的呢？一般来讲，防抖和节流是比较好的解决方案。
-节流
-如果短时间内大量触发同一事件，那么在函数执行一次之后，该函数在指定的时间期限内不再工作，直至过了这段时间才重新生效。
- function throttle(fn, delay,...arguments) {
-     let prev = Date.now()
-     let args = [...arguments]
-     return function () {
-         let cur = Date.now()
-         if (cur - prev &amp;gt;= delay) {
-             fn.call(this, ...args)
-             prev = Date.now()
-         }
-     }
- }
- //demo
- function fn(n) {
-    console.log(n)
+                        </div>
+                        
+                                <div class="post-content">
+                                    <p>#1.map()方法<br>
+#####map函数可以看成是一种映射函数，而且是一一映射。</p>
+<pre><code>let arr = [1, 2, 3, 4, 5]
+
+function mapFun() {
+    return arr.map(i =&gt; i + 10)
 }
-addEventListener(&#39;scroll&#39;, throttle(fn,1000,1))
-
-防抖
-在第一次触发事件时，不立即执行函数，而是给出一个期限值比如200ms，然后：
-如果在200ms内没有再次触发滚动事件，那么就执行函数
-如果在200ms内再次触发滚动事件，那么当前的计时取消，重新开始计时
-效果：如果短时间内大量触发同一事件，只会执行一次函数。
- function debounce(fn, delay, ...arguments) {
-     let timer = null
-     let args = [...arguments]
-     return function () {l
-         clearTimeout(timer)
-         timer = setTimeout(() =&amp;gt; {
-             fn.call(this, ...args)
-         }, delay)
-     }
- }
- //demo
- function fn(n) {
-    console.log(n)
+console.log(mapFun()) //[ 11, 12, 13, 14, 15 ]
+</code></pre>
+<p>#2.filter()方法<br>
+#####filter函数可以看成是一个过滤函数，返回符合条件的元素的数组。</p>
+<p>filter和map的区别：filter需要在循环的时候判断一下是true还是false，是true才会返回这个元素；map没有这个过程。</p>
+<pre><code>function filterFun() {
+    return arr.filter(i =&gt; i &gt; 3)
 }
-addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
+console.log(filterFun())  //[ 4, 5 ]
+</code></pre>
+<p>#3.reduce()方法<br>
+#####reduce函数可以理解成一个迭代函数。</p>
+<pre><code>function reduceFun() {
+    return arr.reduce((sum, i) =&gt; {
+        sum += i
+        return sum
+    })
+}
+console.log(reduceFun()) //15
+</code></pre>
+<p>reduce函数有四个参数：之前值，当前值，索引值，数组本身。</p>
+<pre><code>array.reduce((previous, current, index, array) =&gt;{
 
+函数体
 
-                                        </div>
-                                        
-                                            <a class="btn btn-text" href="https://flymoth.github.io/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">Read More ~</a>
-                            </div>
-                </div>
-            </article>
-            
-                <!-- 翻页 -->
-                
-                </div>
-                <!--  -->
-                <div class="main-container-middle"></div>
-                <!--  -->
-                <div id="sidebar" class="main-container-right">
+}, [initialValue])
+</code></pre>
+<p>previous值取决于[initialValue]。</p>
+<p>如果指定[initialValue]指定是，则作为previous的初始值，也可作为空数组[]。</p>
+<p>如果缺省的话，则将数组的第一个元素作为previous的初始值，下次循环时，之前值就是上一次的当前值，而当前值会变成下一个索引对应的元素，依次类推。<br>
+#4.find()方法<br>
+#####查找到第一个符合条件的元素，则立刻返回</p>
+<pre><code>function findFun() {
+    return arr.find(i =&gt; i &gt; 3)
+}
+console.log(findFun()) //4
+</code></pre>
 
-                    <!-- 个人信息 -->
+                                </div>
+                    </article>
+                    <!--  -->
                     
+                        <div class="next-post">
+                            <div class="next">下一篇</div>
+                            <a href="https://flymoth.github.io/CeFL6i2EE/">
+                                <h3 class="post-title">
+                                    JavaScript实现add(1)(2)(3)(4)的调用方式
+                                </h3>
+                            </a>
+                        </div>
+                        
+                            <div id="disqus_thread"></div>
+                            <div id="gitalk-container"></div>
+                </div>
+                <!-- middle -->
+                <div class="main-container-middle"></div>
+                <!-- right -->
+                <div id="sidebar" class="main-container-right">
+                    
+                                <!-- id-card -->
+                                
     <div class="id_card i-card">
         <div class="id_card-avatar" style="background-image: url(https://flymoth.github.io/images/avatar.png?v=1588225548416)">
         </div>
@@ -213,20 +213,14 @@ addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
         </div>
     </div>
     
-
-                        <!-- 公告栏 -->
-                        
-    <div class="notice-card i-card ">
-        <div class="notice-title i-card-title">公告</div>
-        <div class="notice-content">
-            如果这篇文章对你有帮助，欢迎点个Star
-        </div>
-    </div>
-    
+                                    
 
                 </div>
-            </div>
 
+
+
+
+            </div>
 
 
             <div class="site-footer">
@@ -241,6 +235,7 @@ addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
   hljs.initHighlightingOnLoad()
 </script>
 
+
     </div>
     <script>
         $('#sidebar').stickySidebar({
@@ -248,6 +243,27 @@ addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
             // bottomSpacing: 60
         });
     </script>
+    
+        
+            <script>
+    window.onload = function() {
+        var gitalk = new Gitalk({
+            clientID: '',
+            clientSecret: '',
+            repo: '',
+            owner: '',
+            admin: [''],
+            id: (location.pathname).substring(0, 49), // Ensure uniqueness and length less than 50
+            distractionFreeMode: false // Facebook-like distraction free mode
+        })
+
+        gitalk.render('gitalk-container')
+    }
+</script>
+                
+
+                    
+                                
 </body>
 
 </html>

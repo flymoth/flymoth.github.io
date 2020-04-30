@@ -1,0 +1,364 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+    阿里云CentOS7.4安装Node.js8.11.3和MongoDB4.0 | flymoth&#39;s blog 
+</title>
+<link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588225548416">
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://flymoth.github.io/styles/main.css">
+<!-- js -->
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://flymoth.github.io/media/js/jquery.sticky-sidebar.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+        
+            
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+                
+
+                    
+                            
+</head>
+
+<body>
+    <div class="main">
+        <div class="header">
+    <div class="nav">
+        <div class="logo">
+            <a href="https://flymoth.github.io">
+                <img class="avatar" src="https://flymoth.github.io/images/avatar.png?v=1588225548416" alt="">
+            </a>
+            <div class="site-title">
+                <h1>
+                    flymoth&#39;s blog 
+                </h1>
+            </div>
+        </div>
+        <span class="menu-btn fa fa-align-justify"></span>
+        <div class="menu-container">
+            <ul>
+                
+                    
+                            <li>
+                                <a href="/" class="menu">
+                                    首页
+                                </a>
+                            </li>
+                            
+                                
+                    
+                            <li>
+                                <a href="/archives" class="menu">
+                                    归档
+                                </a>
+                            </li>
+                            
+                                
+                    
+                            <li>
+                                <a href="/tags" class="menu">
+                                    标签
+                                </a>
+                            </li>
+                            
+                                
+                    
+                            <li>
+                                <a href="/post/about" class="menu">
+                                    关于
+                                </a>
+                            </li>
+                            
+                                
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $(".menu-btn").click(function() {
+            $(".menu-container").slideToggle();
+        });
+        $(window).resize(function() {
+
+            if (window.matchMedia('(min-width: 960px)').matches) {
+                $(".menu-container").css('display', 'block')
+            } else {
+                $(".menu-container").css('display', 'none')
+            }
+
+        });
+    });
+</script>
+
+            <div id="main-content" class="post-detail main-container">
+                <!-- left -->
+                <div id="content" class="main-container-left">
+                    <article class="post i-card">
+                        <h2 class="post-title">
+                            阿里云CentOS7.4安装Node.js8.11.3和MongoDB4.0
+                        </h2>
+                        <div class="post-info">
+                            <time class="post-time">2018-06-24</time>
+                            
+                                <a href="https://flymoth.github.io/blUqOvmaS/" class="post-tag i-tag
+                            i-tag-other_1">
+                            #Node.js
+                        </a>
+                                
+                                <a href="https://flymoth.github.io/dNt2nva8z/" class="post-tag i-tag
+                            i-tag-other_4">
+                            #服务器
+                        </a>
+                                
+                        </div>
+                        
+                                <div class="post-content">
+                                    <h1 id="一安装nodejs">一.安装Node.js</h1>
+<p>#推荐使用NVM安装管理Node版本，详见：https://www.jianshu.com/p/c121ab4e4459<br>
+终端工具我用的是<img src="https://upload-images.jianshu.io/upload_images/3574939-e769fddf62d5bedc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Termius" loading="lazy"></p>
+<h5 id="1更新yum">1.更新yum</h5>
+<pre><code>yum -y update
+</code></pre>
+<h5 id="2安装一组用来编译源代码的开发工具">2.安装一组用来编译源代码的开发工具：</h5>
+<pre><code>yum -y groupinstall &quot;Development Tools&quot;
+</code></pre>
+<h5 id="3开始安装nodejs先进入usrsrc文件夹这个文件夹通常用来存放软件源代码">3.开始安装Node.js，先进入/usr/src文件夹，这个文件夹通常用来存放软件源代码</h5>
+<pre><code>cd /usr/src
+</code></pre>
+<h5 id="4从nodejs的站点中获取压缩档源代码-我选择的版本为v8113">4.从<strong>Node.js的站点</strong><em>中获取压缩档源代码, 我选择的版本为v8.11.3：</em></h5>
+<pre><code>wget http://nodejs.org/dist/v8.11.3/node-v8.11.3.tar.gz
+</code></pre>
+<h5 id="5解压缩源文件并且进入到压缩后的文件夹中">5.解压缩源文件，并且进入到压缩后的文件夹中:</h5>
+<pre><code>tar zxf node-v8.11.3.tar.gz
+cd node-v8.11.3
+</code></pre>
+<h5 id="6执行配置脚本来进行编译预处理">6.执行配置脚本来进行编译预处理:</h5>
+<pre><code>./configure
+</code></pre>
+<h5 id="7开始编译源代码">7.开始编译源代码</h5>
+<pre><code>make
+</code></pre>
+<h5 id="8当编译完成后我们需要使之在系统范围内可用-编译后的二进制文件将被放置到系统路径默认情况下node二进制文件应该放在userlocalbinnode文件夹下">8.当编译完成后，我们需要使之在系统范围内可用, 编译后的二进制文件将被放置到系统路径，默认情况下，Node二进制文件应该放在/user/local/bin/node文件夹下:</h5>
+<pre><code>make install
+</code></pre>
+<h5 id="9现在已经安装了nodejs-可以开始部署应用程序-首先要使用nodejs的应用管理模块pm2用于启动程序并在需要时重启非常有用的模块">9.现在已经安装了Node.js, 可以开始部署应用程序。首先要使用Node.js的应用管理模块，pm2(用于启动程序并在需要时重启非常有用的模块）：</h5>
+<pre><code>npm -g install pm2
+</code></pre>
+<h5 id="10建立超级链接-不然-sudo-node-时会报-command-not-found">10.建立超级链接, 不然 sudo node 时会报 &quot;command not found&quot;</h5>
+<pre><code>sudo ln -s /usr/local/bin/node /usr/bin/node 
+sudo ln -s /usr/local/lib/node /usr/lib/node 
+sudo ln -s /usr/local/bin/npm /usr/bin/npm
+</code></pre>
+<h5 id="11检查npm-node是否安装成功">11.检查npm node是否安装成功</h5>
+<pre><code>npm -v
+node -v
+</code></pre>
+<h1 id="二安装mongodb数据库">二.安装MongoDB数据库</h1>
+<p>我采用的是yum方式</p>
+<h5 id="1配置repo">1.配置.repo，</h5>
+<ul>
+<li>创建</li>
+</ul>
+<pre><code>vi /etc/yum.repos.d/mongodb-org-4.0.repo
+</code></pre>
+<pre><code>[mongodb-org-4.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
+</code></pre>
+<h5 id="2安装">2.安装</h5>
+<pre><code>yum install -y mongodb-org
+</code></pre>
+<p>#####安装完毕后修改配置文件:</p>
+<pre><code>vi /etc/mongod.conf
+</code></pre>
+<p>修改配置文件的 bind_ip, 默认是 127.0.0.1 只限于本机连接。所以安装完成后必须把这个修改为 0.0.0.0 ,否则通过别的机器是没法连接的!</p>
+<h5 id="3运行-停止与重启">3.运行、停止与重启</h5>
+<pre><code>systemctl start mongod.service
+systemctl stop mongod.service
+systemctl restart mongod.service
+</code></pre>
+<h5 id="4设置开机启动与关闭开机启动">4.设置开机启动与关闭开机启动</h5>
+<pre><code>systemctl enable mongod.service
+systemctl disable mongod.service
+</code></pre>
+<h5 id="5删除包">5.删除包</h5>
+<pre><code>yum erase $(rpm -qa | grep mongodb-org)
+</code></pre>
+<h5 id="6清理文件">6.清理文件</h5>
+<pre><code>sudo rm -r /var/log/mongodb
+sudo rm -r /var/lib/mongo
+</code></pre>
+<h5 id="7检测后台进程是否存在">7.检测后台进程是否存在</h5>
+<pre><code>ps -ef |grep mongo
+</code></pre>
+<h5 id="8检测27017端口是否在监听">8.检测27017端口是否在监听</h5>
+<pre><code>netstat -lntp | grep 27017
+</code></pre>
+<h5 id="9查看日志文件">9.查看日志文件</h5>
+<pre><code>cat /var/log/mongodb/mongod.log
+</code></pre>
+<h5 id="10常用命令">10.常用命令</h5>
+<pre><code>mongo
+ 
+## 查看数据库
+&gt; show dbs;
+ 
+## 查看数据库版本
+&gt; db.version();
+ 
+## 常用命令帮助
+&gt; db.help();
+</code></pre>
+
+                                </div>
+                    </article>
+                    <!--  -->
+                    
+                        <div class="next-post">
+                            <div class="next">下一篇</div>
+                            <a href="https://flymoth.github.io/yheW8rq8C/">
+                                <h3 class="post-title">
+                                    axios简单封装使用
+                                </h3>
+                            </a>
+                        </div>
+                        
+                            <div id="disqus_thread"></div>
+                            <div id="gitalk-container"></div>
+                </div>
+                <!-- middle -->
+                <div class="main-container-middle"></div>
+                <!-- right -->
+                <div id="sidebar" class="main-container-right">
+                    
+                        <!-- toc -->
+                        
+    <div class="toc-card i-card ">
+        <div class="toc-title i-card-title">目录</div>
+        <div class="toc-content">
+            <ul class="markdownIt-TOC">
+<li><a href="#%E4%B8%80%E5%AE%89%E8%A3%85nodejs">一.安装Node.js</a><br>
+*<br>
+*<br>
+*<br>
+* <a href="#1%E6%9B%B4%E6%96%B0yum">1.更新yum</a><br>
+* <a href="#2%E5%AE%89%E8%A3%85%E4%B8%80%E7%BB%84%E7%94%A8%E6%9D%A5%E7%BC%96%E8%AF%91%E6%BA%90%E4%BB%A3%E7%A0%81%E7%9A%84%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7">2.安装一组用来编译源代码的开发工具：</a><br>
+* <a href="#3%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85nodejs%E5%85%88%E8%BF%9B%E5%85%A5usrsrc%E6%96%87%E4%BB%B6%E5%A4%B9%E8%BF%99%E4%B8%AA%E6%96%87%E4%BB%B6%E5%A4%B9%E9%80%9A%E5%B8%B8%E7%94%A8%E6%9D%A5%E5%AD%98%E6%94%BE%E8%BD%AF%E4%BB%B6%E6%BA%90%E4%BB%A3%E7%A0%81">3.开始安装Node.js，先进入/usr/src文件夹，这个文件夹通常用来存放软件源代码</a><br>
+* <a href="#4%E4%BB%8Enodejs%E7%9A%84%E7%AB%99%E7%82%B9%E4%B8%AD%E8%8E%B7%E5%8F%96%E5%8E%8B%E7%BC%A9%E6%A1%A3%E6%BA%90%E4%BB%A3%E7%A0%81-%E6%88%91%E9%80%89%E6%8B%A9%E7%9A%84%E7%89%88%E6%9C%AC%E4%B8%BAv8113">4.从<strong>Node.js的站点</strong><em>中获取压缩档源代码, 我选择的版本为v8.11.3：</em></a><br>
+* <a href="#5%E8%A7%A3%E5%8E%8B%E7%BC%A9%E6%BA%90%E6%96%87%E4%BB%B6%E5%B9%B6%E4%B8%94%E8%BF%9B%E5%85%A5%E5%88%B0%E5%8E%8B%E7%BC%A9%E5%90%8E%E7%9A%84%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD">5.解压缩源文件，并且进入到压缩后的文件夹中:</a><br>
+* <a href="#6%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE%E8%84%9A%E6%9C%AC%E6%9D%A5%E8%BF%9B%E8%A1%8C%E7%BC%96%E8%AF%91%E9%A2%84%E5%A4%84%E7%90%86">6.执行配置脚本来进行编译预处理:</a><br>
+* <a href="#7%E5%BC%80%E5%A7%8B%E7%BC%96%E8%AF%91%E6%BA%90%E4%BB%A3%E7%A0%81">7.开始编译源代码</a><br>
+* <a href="#8%E5%BD%93%E7%BC%96%E8%AF%91%E5%AE%8C%E6%88%90%E5%90%8E%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E4%BD%BF%E4%B9%8B%E5%9C%A8%E7%B3%BB%E7%BB%9F%E8%8C%83%E5%9B%B4%E5%86%85%E5%8F%AF%E7%94%A8-%E7%BC%96%E8%AF%91%E5%90%8E%E7%9A%84%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E5%B0%86%E8%A2%AB%E6%94%BE%E7%BD%AE%E5%88%B0%E7%B3%BB%E7%BB%9F%E8%B7%AF%E5%BE%84%E9%BB%98%E8%AE%A4%E6%83%85%E5%86%B5%E4%B8%8Bnode%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E5%BA%94%E8%AF%A5%E6%94%BE%E5%9C%A8userlocalbinnode%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%8B">8.当编译完成后，我们需要使之在系统范围内可用, 编译后的二进制文件将被放置到系统路径，默认情况下，Node二进制文件应该放在/user/local/bin/node文件夹下:</a><br>
+* <a href="#9%E7%8E%B0%E5%9C%A8%E5%B7%B2%E7%BB%8F%E5%AE%89%E8%A3%85%E4%BA%86nodejs-%E5%8F%AF%E4%BB%A5%E5%BC%80%E5%A7%8B%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F-%E9%A6%96%E5%85%88%E8%A6%81%E4%BD%BF%E7%94%A8nodejs%E7%9A%84%E5%BA%94%E7%94%A8%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97pm2%E7%94%A8%E4%BA%8E%E5%90%AF%E5%8A%A8%E7%A8%8B%E5%BA%8F%E5%B9%B6%E5%9C%A8%E9%9C%80%E8%A6%81%E6%97%B6%E9%87%8D%E5%90%AF%E9%9D%9E%E5%B8%B8%E6%9C%89%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9D%97">9.现在已经安装了Node.js, 可以开始部署应用程序。首先要使用Node.js的应用管理模块，pm2(用于启动程序并在需要时重启非常有用的模块）：</a><br>
+* <a href="#10%E5%BB%BA%E7%AB%8B%E8%B6%85%E7%BA%A7%E9%93%BE%E6%8E%A5-%E4%B8%8D%E7%84%B6-sudo-node-%E6%97%B6%E4%BC%9A%E6%8A%A5-command-not-found">10.建立超级链接, 不然 sudo node 时会报 &quot;command not found&quot;</a><br>
+* <a href="#11%E6%A3%80%E6%9F%A5npm-node%E6%98%AF%E5%90%A6%E5%AE%89%E8%A3%85%E6%88%90%E5%8A%9F">11.检查npm node是否安装成功</a></li>
+<li><a href="#%E4%BA%8C%E5%AE%89%E8%A3%85mongodb%E6%95%B0%E6%8D%AE%E5%BA%93">二.安装MongoDB数据库</a><br>
+*<br>
+*<br>
+*<br>
+* <a href="#1%E9%85%8D%E7%BD%AErepo">1.配置.repo，</a><br>
+* <a href="#2%E5%AE%89%E8%A3%85">2.安装</a><br>
+* <a href="#3%E8%BF%90%E8%A1%8C-%E5%81%9C%E6%AD%A2%E4%B8%8E%E9%87%8D%E5%90%AF">3.运行、停止与重启</a><br>
+* <a href="#4%E8%AE%BE%E7%BD%AE%E5%BC%80%E6%9C%BA%E5%90%AF%E5%8A%A8%E4%B8%8E%E5%85%B3%E9%97%AD%E5%BC%80%E6%9C%BA%E5%90%AF%E5%8A%A8">4.设置开机启动与关闭开机启动</a><br>
+* <a href="#5%E5%88%A0%E9%99%A4%E5%8C%85">5.删除包</a><br>
+* <a href="#6%E6%B8%85%E7%90%86%E6%96%87%E4%BB%B6">6.清理文件</a><br>
+* <a href="#7%E6%A3%80%E6%B5%8B%E5%90%8E%E5%8F%B0%E8%BF%9B%E7%A8%8B%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8">7.检测后台进程是否存在</a><br>
+* <a href="#8%E6%A3%80%E6%B5%8B27017%E7%AB%AF%E5%8F%A3%E6%98%AF%E5%90%A6%E5%9C%A8%E7%9B%91%E5%90%AC">8.检测27017端口是否在监听</a><br>
+* <a href="#9%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6">9.查看日志文件</a><br>
+* <a href="#10%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4">10.常用命令</a></li>
+</ul>
+
+        </div>
+        <script>
+            function locateCatelogList() {
+                /*获取文章目录集合,可通过:header过滤器*/
+                var alis = $('.post-content :header');
+                /*获取侧边栏目录列表集合**/
+                var sidebar_alis = $('.markdownIt-TOC a');
+                /*获取滚动条到顶部的距离*/
+                var scroll_height = $(window).scrollTop();
+                for (var i = 0; i < alis.length; i++) {
+                    /*获取锚点集合中的元素分别到顶点的距离*/
+                    var a_height = $(alis[i]).offset().top;
+                    if (a_height < scroll_height) {
+                        /*高亮显示*/
+                        sidebar_alis.removeClass('on');
+                        $(sidebar_alis[i]).addClass('on');
+                    }
+                }
+            }
+            $(function() {
+                /*绑定滚动事件 */
+                $(window).bind('scroll', locateCatelogList);
+            });
+        </script>
+    </div>
+    
+                            
+
+                </div>
+
+
+
+
+            </div>
+
+
+            <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+<span> | </span>
+<a href="https://github.com/flymoth" target="_blank">flymoth</a>
+<span> 2020</span> | 
+  <a class="rss" href="https://flymoth.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+
+    </div>
+    <script>
+        $('#sidebar').stickySidebar({
+            topSpacing: 80,
+            // bottomSpacing: 60
+        });
+    </script>
+    
+        
+            <script>
+    window.onload = function() {
+        var gitalk = new Gitalk({
+            clientID: '',
+            clientSecret: '',
+            repo: '',
+            owner: '',
+            admin: [''],
+            id: (location.pathname).substring(0, 49), // Ensure uniqueness and length less than 50
+            distractionFreeMode: false // Facebook-like distraction free mode
+        })
+
+        gitalk.render('gitalk-container')
+    }
+</script>
+                
+
+                    
+                                
+</body>
+
+</html>

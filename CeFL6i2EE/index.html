@@ -5,7 +5,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>
-    关于 | flymoth&#39;s blog 
+    JavaScript实现add(1)(2)(3)(4)的调用方式 | flymoth&#39;s blog 
 </title>
 <link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588225548416">
 <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
@@ -106,26 +106,83 @@
                 <div id="content" class="main-container-left">
                     <article class="post i-card">
                         <h2 class="post-title">
-                            关于
+                            JavaScript实现add(1)(2)(3)(4)的调用方式
                         </h2>
                         <div class="post-info">
-                            <time class="post-time">2019-01-25</time>
+                            <time class="post-time">2018-06-13</time>
                             
+                                <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-other_2">
+                            #JavaScript
+                        </a>
+                                
                         </div>
                         
                                 <div class="post-content">
-                                    <blockquote>
-<p>欢迎来到我的小站呀，很高兴遇见你！🤝</p>
-</blockquote>
-<h2 id="关于本站">🏠 关于本站</h2>
-<h2 id="博主是谁">👨‍💻 博主是谁</h2>
-<h2 id="兴趣爱好">⛹ 兴趣爱好</h2>
-<h2 id="联系我呀">📬 联系我呀</h2>
+                                    <h1 id="1第一种">1.第一种</h1>
+<pre><code>var add = function (m) {
+ 
+    var temp = function (n) {
+        return add(m + n);
+    }
+ 
+    temp.toString = function () {
+        return m;
+    }
+ 
+    return temp;
+};
+ 
+ 
+add(3)(4)(5); // 12
+add(3)(6)(9)(25); // 43
+</code></pre>
+<p>这个add函数可以无限次调用循环调用，并且把所有传进去的值相加，最后返回相加总数。这道题咋一看有点特别，但代码量极其少而精，重点技术在于：作用域、交替、匿名函数、toString的巧妙。<br>
+让我们来解释这个过程：add(3)(4)(5)<br>
+1、先执行add(3)，此时m=3，并且返回temp函数；<br>
+2、执行temp(4)，这个函数内执行add(m+n)，n是此次传进来的数值4，m值还是上一步中的3，所以add(m+n)=add(3+4)=add(7)，此时m=7，并且返回temp函数<br>
+3、执行temp(5)，这个函数内执行add(m+n)，n是此次传进来的数值5，m值还是上一步中的7，所以add(m+n)=add(7+5)=add(12)，此时m=12，并且返回temp函数<br>
+4、关键性一步来了，后面没有传入参数，等于返回的temp函数不被执行而是打印，了解JS的朋友都知道对象的toString是修改对象转换字符串的方法，因此代码中temp函数的toString函数return m值，而m值是最后一步执行函数时的值m=12，所以返回值是12。<br>
+看到这其实就很明白了，代码中temp.toString的重写只是为了函数不执行时能够返回最后运算的结果值，所以这个地方是可以任意修改的，你让它返回什么它就返回什么，比如改写：</p>
+<pre><code>temp.toString = function () {
+return “total : ” + m;
+}
+</code></pre>
+<p>执行结果：</p>
+<pre><code>&gt;&gt;&gt; add(3)(4)(5);
+total : 12
+</code></pre>
+<h1 id="2第二种">2.第二种</h1>
+<pre><code>function add(x) {
+var sum = x;
+var tmp = function (y) {
+sum = sum + y;
+return tmp;
+};
+tmp.toString = function () {
+return sum;
+};
+return tmp;
+}
+console.log(add(1)(2)(3)); //6
+console.log(add(1)(2)(3)(4)); //10
+</code></pre>
+<p>首先要一个数记住每次的计算值，所以使用了闭包，在tmp中记住了x的值，第一次调用add(),初始化了tmp，并将x保存在tmp的作用链中，然后返回tmp保证了第二次调用的是tmp函数，后面的计算都是在调用tmp, 因为tmp也是返回的自己，保证了第二次之后的调用也是调用tmp，而在tmp中将传入的参数与保存在作用链中x相加并付给sum，这样就保证了计算；</p>
+<p>但是在计算完成后还是返回了tmp这个函数，这样就获取不到计算的结果了，我们需要的结果是一个计算的数字那么怎么办呢，首先要知道JavaScript中，打印和相加计算，会分别调用toString或valueOf函数，所以我们重写tmp的toString和valueOf方法，返回sum的值。</p>
 
                                 </div>
                     </article>
                     <!--  -->
                     
+                        <div class="next-post">
+                            <div class="next">下一篇</div>
+                            <a href="https://flymoth.github.io/pew26xKme/">
+                                <h3 class="post-title">
+                                    用基本遍历实现JavaScript的indexOf和search方法的功能
+                                </h3>
+                            </a>
+                        </div>
+                        
                             <div id="disqus_thread"></div>
                             <div id="gitalk-container"></div>
                 </div>
@@ -140,14 +197,8 @@
         <div class="toc-title i-card-title">目录</div>
         <div class="toc-content">
             <ul class="markdownIt-TOC">
-<li>
-<ul>
-<li><a href="#%E5%85%B3%E4%BA%8E%E6%9C%AC%E7%AB%99">🏠 关于本站</a></li>
-<li><a href="#%E5%8D%9A%E4%B8%BB%E6%98%AF%E8%B0%81">👨‍💻 博主是谁</a></li>
-<li><a href="#%E5%85%B4%E8%B6%A3%E7%88%B1%E5%A5%BD">⛹ 兴趣爱好</a></li>
-<li><a href="#%E8%81%94%E7%B3%BB%E6%88%91%E5%91%80">📬 联系我呀</a></li>
-</ul>
-</li>
+<li><a href="#1%E7%AC%AC%E4%B8%80%E7%A7%8D">1.第一种</a></li>
+<li><a href="#2%E7%AC%AC%E4%BA%8C%E7%A7%8D">2.第二种</a></li>
 </ul>
 
         </div>

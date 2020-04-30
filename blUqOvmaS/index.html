@@ -5,7 +5,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>
-    前端性能优化 | flymoth&#39;s blog 
+    Node.js | flymoth&#39;s blog 
 </title>
 <link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588225548416">
 <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
@@ -98,27 +98,27 @@
                     
     <div class="i-card">
         <b>标签：#
-        前端性能优化</b>
+        Node.js</b>
     </div>
     
         
             <article class="post i-card">
                 <h2 class="post-title">
-                    <a href="https://flymoth.github.io/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">
-                        防抖与节流函数的基本实现
+                    <a href="https://flymoth.github.io/0PTTHuDRP/">
+                        阿里云CentOS7.4安装Node.js8.11.3和MongoDB4.0
                     </a>
                 </h2>
                 <div class="post-info">
-                    <time class="post-time">2020-04-30</time>
+                    <time class="post-time">2018-06-24</time>
                     
-                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                        <a href="https://flymoth.github.io/blUqOvmaS/" class="post-tag i-tag
                             i-tag-success">
-            #JavaScript
+            #Node.js
         </a>
                         
-                        <a href="https://flymoth.github.io/d6wmA7zQk/" class="post-tag i-tag
-                            i-tag-">
-            #前端性能优化
+                        <a href="https://flymoth.github.io/dNt2nva8z/" class="post-tag i-tag
+                            i-tag-other_2">
+            #服务器
         </a>
                         
                 </div>
@@ -127,52 +127,109 @@
                             <div class="post-content">
                                 
                                         <div class="post-content-content">
-                                            在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。
-通常这种情况下我们怎么去解决的呢？一般来讲，防抖和节流是比较好的解决方案。
-节流
-如果短时间内大量触发同一事件，那么在函数执行一次之后，该函数在指定的时间期限内不再工作，直至过了这段时间才重新生效。
- function throttle(fn, delay,...arguments) {
-     let prev = Date.now()
-     let args = [...arguments]
-     return function () {
-         let cur = Date.now()
-         if (cur - prev &amp;gt;= delay) {
-             fn.call(this, ...args)
-             prev = Date.now()
-         }
-     }
- }
- //demo
- function fn(n) {
-    console.log(n)
-}
-addEventListener(&#39;scroll&#39;, throttle(fn,1000,1))
+                                            一.安装Node.js
+#推荐使用NVM安装管理Node版本，详见：https://www.jianshu.com/p/c121ab4e4459
+终端工具我用的是
+1.更新yum
+yum -y update
 
-防抖
-在第一次触发事件时，不立即执行函数，而是给出一个期限值比如200ms，然后：
-如果在200ms内没有再次触发滚动事件，那么就执行函数
-如果在200ms内再次触发滚动事件，那么当前的计时取消，重新开始计时
-效果：如果短时间内大量触发同一事件，只会执行一次函数。
- function debounce(fn, delay, ...arguments) {
-     let timer = null
-     let args = [...arguments]
-     return function () {l
-         clearTimeout(timer)
-         timer = setTimeout(() =&amp;gt; {
-             fn.call(this, ...args)
-         }, delay)
-     }
- }
- //demo
- function fn(n) {
-    console.log(n)
-}
-addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
+2.安装一组用来编译源代码的开发工具：
+yum -y groupinstall &amp;quot;Development Tools&amp;quot;
+
+3.开始安装Node.js，先进入/usr/src文件夹，这个文件夹通常用来存放软件源代码
+cd /usr/src
+
+4.从Node.js的站点中获取压缩档源代码, 我选择的版本为v8.11.3：
+wget http://nodejs.org/dist/v8.11.3/node-v8.11.3.tar.gz
+
+5.解压缩源文件，并且进入到压缩后的文件夹中:
+tar zxf node-v8.11.3.tar.gz
+cd node-v8.11.3
+
+6.执行配置脚本来进行编译预处理:
+./configure
+
+7.开始编译源代码
+make
+
+8.当编译完成后，我们需要使之在系统范围内可用, 编译后的二进制文件将被放置到系统路径，默认情况下，Node二进制文件应该放在/user/local/bin/node文件夹下:
+make install
+
+9.现在已经安装了Node.js, 可以开始部署应用程序。首先要使用Node.js的应用管理模块，pm2(用于启动程序并在需要时重启非常有用的模块）：
+npm -g install pm2
+
+10.建立超级链接, 不然 sudo node 时会报 &amp;quot;command not found&amp;quot;
+sudo ln -s /usr/local/bin/node /usr/bin/node 
+sudo ln -s /usr/local/lib/node /usr/lib/node 
+sudo ln -s /usr/local/bin/npm /usr/bin/npm
+
+11.检查npm node是否安装成功
+npm -v
+node -v
+
+二.安装MongoDB数据库
+我采用的是yum方式
+1.配置.repo，
+
+创建
+
+vi /etc/yum.repos.d/mongodb-org-4.0.repo
+
+[mongodb-org-4.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
+
+2.安装
+yum install -y mongodb-org
+
+#####安装完毕后修改配置文件:
+vi /etc/mongod.conf
+
+修改配置文件的 bind_ip, 默认是 127.0.0.1 只限于本机连接。所以安装完成后必须把这个修改为 0.0.0.0 ,否则通过别的机器是没法连接的!
+3.运行、停止与重启
+systemctl start mongod.service
+systemctl stop mongod.service
+systemctl restart mongod.service
+
+4.设置开机启动与关闭开机启动
+systemctl enable mongod.service
+systemctl disable mongod.service
+
+5.删除包
+yum erase $(rpm -qa | grep mongodb-org)
+
+6.清理文件
+sudo rm -r /var/log/mongodb
+sudo rm -r /var/lib/mongo
+
+7.检测后台进程是否存在
+ps -ef |grep mongo
+
+8.检测27017端口是否在监听
+netstat -lntp | grep 27017
+
+9.查看日志文件
+cat /var/log/mongodb/mongod.log
+
+10.常用命令
+mongo
+ 
+## 查看数据库
+&amp;gt; show dbs;
+ 
+## 查看数据库版本
+&amp;gt; db.version();
+ 
+## 常用命令帮助
+&amp;gt; db.help();
 
 
                                         </div>
                                         
-                                            <a class="btn btn-text" href="https://flymoth.github.io/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">Read More ~</a>
+                                            <a class="btn btn-text" href="https://flymoth.github.io/0PTTHuDRP/">Read More ~</a>
                             </div>
                 </div>
             </article>

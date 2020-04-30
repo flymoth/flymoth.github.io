@@ -5,7 +5,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>
-    前端性能优化 | flymoth&#39;s blog 
+    MySQL | flymoth&#39;s blog 
 </title>
 <link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588225548416">
 <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
@@ -98,27 +98,27 @@
                     
     <div class="i-card">
         <b>标签：#
-        前端性能优化</b>
+        MySQL</b>
     </div>
     
         
             <article class="post i-card">
                 <h2 class="post-title">
-                    <a href="https://flymoth.github.io/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">
-                        防抖与节流函数的基本实现
+                    <a href="https://flymoth.github.io/D5d8guW9E/">
+                        阿里云CentOS7.4安装MySQL8.0并配置远程访问
                     </a>
                 </h2>
                 <div class="post-info">
-                    <time class="post-time">2020-04-30</time>
+                    <time class="post-time">2018-07-12</time>
                     
-                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
-                            i-tag-success">
-            #JavaScript
+                        <a href="https://flymoth.github.io/dNt2nva8z/" class="post-tag i-tag
+                            i-tag-warning">
+            #服务器
         </a>
                         
-                        <a href="https://flymoth.github.io/d6wmA7zQk/" class="post-tag i-tag
+                        <a href="https://flymoth.github.io/NoZ45gU70/" class="post-tag i-tag
                             i-tag-">
-            #前端性能优化
+            #MySQL
         </a>
                         
                 </div>
@@ -127,52 +127,67 @@
                             <div class="post-content">
                                 
                                         <div class="post-content-content">
-                                            在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。
-通常这种情况下我们怎么去解决的呢？一般来讲，防抖和节流是比较好的解决方案。
-节流
-如果短时间内大量触发同一事件，那么在函数执行一次之后，该函数在指定的时间期限内不再工作，直至过了这段时间才重新生效。
- function throttle(fn, delay,...arguments) {
-     let prev = Date.now()
-     let args = [...arguments]
-     return function () {
-         let cur = Date.now()
-         if (cur - prev &amp;gt;= delay) {
-             fn.call(this, ...args)
-             prev = Date.now()
-         }
-     }
- }
- //demo
- function fn(n) {
-    console.log(n)
-}
-addEventListener(&#39;scroll&#39;, throttle(fn,1000,1))
+                                            1. 首先进入本机的源文件目录
+cd /usr/local/src
 
-防抖
-在第一次触发事件时，不立即执行函数，而是给出一个期限值比如200ms，然后：
-如果在200ms内没有再次触发滚动事件，那么就执行函数
-如果在200ms内再次触发滚动事件，那么当前的计时取消，重新开始计时
-效果：如果短时间内大量触发同一事件，只会执行一次函数。
- function debounce(fn, delay, ...arguments) {
-     let timer = null
-     let args = [...arguments]
-     return function () {l
-         clearTimeout(timer)
-         timer = setTimeout(() =&amp;gt; {
-             fn.call(this, ...args)
-         }, delay)
-     }
- }
- //demo
- function fn(n) {
-    console.log(n)
-}
-addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
+2. 使用wget下载官方yum源的rpm包：
+wget https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm
+
+3. 安装rpm包
+rpm -ivh mysql80-community-release-el7-1.noarch.rpm
+
+4. 再次使用yum来安装mysql-server
+yum install -y mysql-server
+
+5. 安装完成后，启动mysqld服务
+systemctl start mysqld
+
+查看是否成功启动：
+ps aux|grep mysqld
+
+6. 设置mysqld服务开机自启动
+systemctl enable mysqld
+
+7. 使用初始密码登录
+由于MySQL从5.7开始不允许首次安装后，使用空密码进行登录，系统会随机生成一个密码以供管理员首次登录使用，这个密码记录在/var/log/mysqld.log文件中，使用下面的命令可以查看此密码：
+cat /var/log/mysqld.log|grep &#39;A temporary password&#39;
+2017-11-12T13:35:37.013617Z 1 [Note] A temporary password is generated for root@localhost: b
+
+最后一行冒号后面的部分bkv,dy,)o7Ss就是初始密码。  使用此密码登录MySQL:
+mysql -u root -p
+
+8. 更改默认密码
+切换数据库：
+use mysql;
+
+修改root密码：
+alter user &#39;root&#39;@&#39;localhost&#39; identified by &#39;your_password&#39;;
+
+将your_password替换成你自己的密码就可以了，当然，这个密码是强密码，要求密码包含大小写字母、数字及标点符号，长度应该在6位以上。
+重新使用新的密码登录，如果可以正常登录说明你的MySQL已经成功安装在CentOS 7.4上了.
+9.设置Mysql远程访问
+首先进入数据库，使用系统数据库mysql
+mysql -u root -p 
+use mysql
+update user set host =&#39;%&#39;where user =&#39;root&#39; and host =&#39;localhost&#39;;
+flush privileges;
+
+这时候连接此服务器的mysql客户端需要重新启动下，然后再连接此服务器.
+防火墙设置一下，不然3306端口还是无法访问
+iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
+
+设置完之后，查看一下是否能通过
+iptables -L -n
+
+(
+)
+如果想要限制访问
+iptables -D INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
 
 
                                         </div>
                                         
-                                            <a class="btn btn-text" href="https://flymoth.github.io/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">Read More ~</a>
+                                            <a class="btn btn-text" href="https://flymoth.github.io/D5d8guW9E/">Read More ~</a>
                             </div>
                 </div>
             </article>

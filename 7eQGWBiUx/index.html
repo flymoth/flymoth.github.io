@@ -7,7 +7,7 @@
 <title>
     JavaScript | flymoth&#39;s blog 
 </title>
-<link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588217632097">
+<link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588225548416">
 <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
 <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
@@ -27,7 +27,7 @@
     <div class="nav">
         <div class="logo">
             <a href="https://flymoth.github.io">
-                <img class="avatar" src="https://flymoth.github.io/images/avatar.png?v=1588217632097" alt="">
+                <img class="avatar" src="https://flymoth.github.io/images/avatar.png?v=1588225548416" alt="">
             </a>
             <div class="site-title">
                 <h1>
@@ -112,12 +112,12 @@
                     <time class="post-time">2020-04-30</time>
                     
                         <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
-                            i-tag-other_1">
+                            i-tag-warning">
             #JavaScript
         </a>
                         
                         <a href="https://flymoth.github.io/d6wmA7zQk/" class="post-tag i-tag
-                            i-tag-other_4">
+                            i-tag-info">
             #前端性能优化
         </a>
                         
@@ -177,6 +177,615 @@ addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
                 </div>
             </article>
             
+            <article class="post i-card">
+                <h2 class="post-title">
+                    <a href="https://flymoth.github.io/1PXabsDk4/">
+                        移动端滚动穿透的解决方案
+                    </a>
+                </h2>
+                <div class="post-info">
+                    <time class="post-time">2019-02-28</time>
+                    
+                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-banana">
+            #JavaScript
+        </a>
+                        
+                </div>
+                <div class="post-article">
+                    
+                            <div class="post-content">
+                                
+                                        <div class="post-content-content">
+                                            一.在滚动区域先下滑再上滑导致无法滚动
+1.情景复现
+当弹出层内容可以滚动时，如果我们直接往上滑，是可以正常触发滚动的，但是如果当内容已经滚动到顶部时，我们先往下滑，再往上滑就无法触发内容滚动了。
+2.问题分析
+这个问题我把它归到滚动穿透的底层可以滚动，弹出层可以滚动一类。其原因就是当弹出层无法滚动时，滚动时间会想外层dom传递，也就是被底层给捕获率，从而引起底层滚动。我们通常的解决方案是给底层加上overflow:hidden和position:fixed去禁止底层滚动，但这种方法并不能解决上面的问题，而且会导致顶层可滚动区域回到顶部。下面我介绍的这种方案可以完美解决滚动穿透和无法滚动的问题，同时也不会导致底层内容回到顶部。
+3.方案原理
+监听touchmove事件，判断开始滑动时是否在顶部，若是则阻止默认事件，方式滚动传递出去，若不是，则不作操作。
+需要做的事情有：
+1、预存一个全局变量targetY
+2、监听可滚动区域的touchstart事件，记录下第一次按下时的
+e.targetTouches[0].clientY值，赋值给targetY
+3、后期touchmove里边获取每次的e.targetTouches[0].clientY与第一次的进行比较，可以得出用户是上滑还是下滑手势。
+4、如果手势是向上滑，且页面现在滚动的位置刚好是整个可滚动高度——弹窗内容可视区域高度的值，说明上滑到底，阻止默认事件。
+同理，如果手势是向下滑，并且当前滚动高度为0说明当前展示的已经在可滚动内容的顶部了，此时再次阻止默认事件即可。
+4.代码案例
+&amp;lt;div id=&amp;quot;des-container-wrapper&amp;quot;     
+        @touchstart=&amp;quot;leftTouchStart&amp;quot;     
+        @touchmove=&amp;quot;leftTouchMove&amp;quot;&amp;gt;  //弹出层滚动区域容器
+    &amp;lt;section class=&amp;quot;des-container&amp;quot; v-for=&amp;quot;item in modelData&amp;quot; :key=&amp;quot;item.id&amp;quot;&amp;gt;
+        &amp;lt;h1 class=&amp;quot;des-title&amp;quot; v-if=&amp;quot;item.question&amp;quot;&amp;gt;{{item.question}}&amp;lt;/h1&amp;gt;
+        &amp;lt;div class=&amp;quot;des-content&amp;quot; v-html=&amp;quot;item.answer&amp;quot;&amp;gt;&amp;lt;/div&amp;gt;
+    &amp;lt;/section&amp;gt;
+&amp;lt;/div&amp;gt;
+data(){
+    return {
+        targetLeftY: 0,
+    }
+},
+methods:{
+    leftTouchStart(e) {
+        this.targetLeftY = Math.floor(e.targetTouches[0].clientY);
+    },
+    leftTouchMove(e) {
+        let newTargetY = Math.floor(e.targetTouches[0].clientY);
+        let dom = document.getElementById(&#39;des-container-wrapper&#39;);
+        let sT = dom.scrollTop;
+        let sH = dom.scrollHeight;
+        let cH = dom.clientHeight;
+        if (sT &amp;lt;= 0 &amp;amp;&amp;amp; newTargetY - this.targetLeftY &amp;gt; 0) {
+            e.preventDefault();
+        } else if ((sT &amp;gt;= sH - cH) &amp;amp;&amp;amp; newTargetY - this.targetLeftY &amp;lt; 0) {
+            e.preventDefault();
+        }
+    },
+},
+
+二.其他常见方案
+1.解决方案：
+弹层出现时，用css给body设置固定定位和超出隐藏。
+至于弹层内部的滚动，设置一个overflow: scroll;即可。
+不过为了流畅体验，可以加上-webkit-overflow-scrolling: touch，以解决在IOS上滚动惯性失效的问题，提高滚动的流畅度。
+        //弹窗显示
+        document.body.style.overflow = &#39;hidden&#39;
+        document.body.style.position = &#39;fixed&#39;
+        //弹窗隐藏
+        document.body.style.overflow = &#39;auto&#39;
+        document.body.style.position = &#39;static&#39;
+        //弹窗滚动容器样式
+        overflow-y: scroll
+        -webkit-overflow-scrolling: touch
+
+2.局限问题：
+若用户在body层滚动了很长的距离再打开弹出层，这种方案会导致body层回到顶部，那么就需要在打开弹出层之前记录body层的位置，在关闭弹出层之后将body层位置还原。弹层中内容滚动到顶部或底部后，还会连带页面body一起滚动。也就是还会发生穿透效果。
+
+                                        </div>
+                                        
+                                            <a class="btn btn-text" href="https://flymoth.github.io/1PXabsDk4/">Read More ~</a>
+                            </div>
+                </div>
+            </article>
+            
+            <article class="post i-card">
+                <h2 class="post-title">
+                    <a href="https://flymoth.github.io/CmC9cYr3b/">
+                        vue-router+webpack部署nginx刷新404问题与解决方案
+                    </a>
+                </h2>
+                <div class="post-info">
+                    <time class="post-time">2018-07-20</time>
+                    
+                        <a href="https://flymoth.github.io/TTMNoXoIE/" class="post-tag i-tag
+                            i-tag-error">
+            #Vue.js
+        </a>
+                        
+                        <a href="https://flymoth.github.io/WyqW64SbN/" class="post-tag i-tag
+                            i-tag-other_1">
+            #Webpack
+        </a>
+                        
+                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-banana">
+            #JavaScript
+        </a>
+                        
+                </div>
+                <div class="post-article">
+                    
+                            <div class="post-content">
+                                
+                                        <div class="post-content-content">
+                                            #1.问题：
+使用Vue.js框架，利用vue-route结合webpack编写了一个单页路由项目，运维协助在服务器端配置nginx。部署完成后，访问首页没问题，从首页里打开二级页面没问题，但是所有的二级页面打开后，再次刷新，就会出现404现象。
+#2.原因：
+刷新页面时访问的资源在服务端找不到，因为vue-router设置的路径不是真实存在的路径。如上的404现象，是因为在nginx配置的根目录/Data/app/xqsj_wx/dist下面压根没有loading这个真实资源存在，这些访问资源都是在js里渲染的。
+服务端nginx的一开始配置如下（假设域名为：flymoth.com）：
+         server {
+         listen 80;
+
+         server_name flymoth.com;
+         root /Data/app/xqsj_wx/dist;
+         index index.html;
+
+         access_log /var/log/testwx.log main;
+
+         }
+
+如上出现404的原因是由于在这个域名根目录/Data/app/xqsj_wx/dist下面压根就没有loading这个真实目录存在。
+#3.解决方案
+在nginx配置里添加vue-route的跳转设置（这里首页是index.html，如果是index.php就在下面对应位置替换），正确配置如下：
+server {
+         listen 80;
+
+         server_name testwx.wangshibo.com;
+         root /Data/app/xqsj_wx/dist;
+         index index.html;
+         access_log /var/log/testwx.log main;
+          // 这里
+         location / {
+             try_files $uri $uri/ @router;
+             index index.html;
+         }
+
+        location @router {
+            rewrite ^.*$ /index.html last;
+        }
+
+}
+
+
+                                        </div>
+                                        
+                                            <a class="btn btn-text" href="https://flymoth.github.io/CmC9cYr3b/">Read More ~</a>
+                            </div>
+                </div>
+            </article>
+            
+            <article class="post i-card">
+                <h2 class="post-title">
+                    <a href="https://flymoth.github.io/yheW8rq8C/">
+                        axios简单封装使用
+                    </a>
+                </h2>
+                <div class="post-info">
+                    <time class="post-time">2018-06-20</time>
+                    
+                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-other_2">
+            #JavaScript
+        </a>
+                        
+                </div>
+                <div class="post-article">
+                    
+                            <div class="post-content">
+                                
+                                        <div class="post-content-content">
+                                            1.安装并引入
+yarn add axios
+import axios from &#39;axios&#39; //在js文件中引入
+
+2.配置
+axios.defaults.timeout = 5000
+axios.defaults.baseURL = &#39;http://localhost:8080&#39;
+axios.defaults.withCredentials = true
+
+3.请求拦截与响应拦截
+// 请求拦截
+axios.interceptors.request.use(
+  config =&amp;gt; {
+    // 配置通用参数
+    return config
+  },
+  err =&amp;gt; {
+    return Promise.reject(err)
+  }
+)
+
+// 响应拦截
+axios.interceptors.response.use(
+  response =&amp;gt; {
+    if (response) {
+      // 响应处理
+    }
+    return response
+  },
+  error =&amp;gt; {
+    return Promise.reject(error.response.data)
+  }
+)
+
+4.封装get post put delete请求
+/**
+ * get请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const get = (url, params) =&amp;gt; {
+  return new Promise(async (resolve, reject) =&amp;gt; {
+    try {
+      const res = await axios.get(url, {
+        params: params
+      })
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+/**
+ * post请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const post = (url, params) =&amp;gt; {
+  return new Promise(async (resolve, reject) =&amp;gt; {
+    try {
+      const res = await axios.post(url, params)
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+/**
+ * put请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const put = (url, params) =&amp;gt; {
+  return new Promise(async (resolve, reject) =&amp;gt; {
+    try {
+      const res = await axios.put(url, params)
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+/**
+ * delete请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const del = (url, params) =&amp;gt; {
+  return new Promise(async (resolve, reject) =&amp;gt; {
+    try {
+      const res = await axios.delete(url, {
+        data: params
+      })
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+5.导出
+export default {
+  get,
+  post,
+  put,
+  del
+}
+
+
+                                        </div>
+                                        
+                                            <a class="btn btn-text" href="https://flymoth.github.io/yheW8rq8C/">Read More ~</a>
+                            </div>
+                </div>
+            </article>
+            
+            <article class="post i-card">
+                <h2 class="post-title">
+                    <a href="https://flymoth.github.io/_KYv4LUL0/">
+                        ES6 数组方法map(),filter(),reduce()和find()
+                    </a>
+                </h2>
+                <div class="post-info">
+                    <time class="post-time">2018-06-14</time>
+                    
+                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-primary">
+            #JavaScript
+        </a>
+                        
+                </div>
+                <div class="post-article">
+                    
+                            <div class="post-content">
+                                
+                                        <div class="post-content-content">
+                                            #1.map()方法
+#####map函数可以看成是一种映射函数，而且是一一映射。
+let arr = [1, 2, 3, 4, 5]
+
+function mapFun() {
+    return arr.map(i =&amp;gt; i + 10)
+}
+console.log(mapFun()) //[ 11, 12, 13, 14, 15 ]
+
+#2.filter()方法
+#####filter函数可以看成是一个过滤函数，返回符合条件的元素的数组。
+filter和map的区别：filter需要在循环的时候判断一下是true还是false，是true才会返回这个元素；map没有这个过程。
+function filterFun() {
+    return arr.filter(i =&amp;gt; i &amp;gt; 3)
+}
+console.log(filterFun())  //[ 4, 5 ]
+
+#3.reduce()方法
+#####reduce函数可以理解成一个迭代函数。
+function reduceFun() {
+    return arr.reduce((sum, i) =&amp;gt; {
+        sum += i
+        return sum
+    })
+}
+console.log(reduceFun()) //15
+
+reduce函数有四个参数：之前值，当前值，索引值，数组本身。
+array.reduce((previous, current, index, array) =&amp;gt;{
+
+函数体
+
+}, [initialValue])
+
+previous值取决于[initialValue]。
+如果指定[initialValue]指定是，则作为previous的初始值，也可作为空数组[]。
+如果缺省的话，则将数组的第一个元素作为previous的初始值，下次循环时，之前值就是上一次的当前值，而当前值会变成下一个索引对应的元素，依次类推。
+#4.find()方法
+#####查找到第一个符合条件的元素，则立刻返回
+function findFun() {
+    return arr.find(i =&amp;gt; i &amp;gt; 3)
+}
+console.log(findFun()) //4
+
+
+                                        </div>
+                                        
+                                            <a class="btn btn-text" href="https://flymoth.github.io/_KYv4LUL0/">Read More ~</a>
+                            </div>
+                </div>
+            </article>
+            
+            <article class="post i-card">
+                <h2 class="post-title">
+                    <a href="https://flymoth.github.io/CeFL6i2EE/">
+                        JavaScript实现add(1)(2)(3)(4)的调用方式
+                    </a>
+                </h2>
+                <div class="post-info">
+                    <time class="post-time">2018-06-13</time>
+                    
+                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-warning">
+            #JavaScript
+        </a>
+                        
+                </div>
+                <div class="post-article">
+                    
+                            <div class="post-content">
+                                
+                                        <div class="post-content-content">
+                                            1.第一种
+var add = function (m) {
+ 
+    var temp = function (n) {
+        return add(m + n);
+    }
+ 
+    temp.toString = function () {
+        return m;
+    }
+ 
+    return temp;
+};
+ 
+ 
+add(3)(4)(5); // 12
+add(3)(6)(9)(25); // 43
+
+这个add函数可以无限次调用循环调用，并且把所有传进去的值相加，最后返回相加总数。这道题咋一看有点特别，但代码量极其少而精，重点技术在于：作用域、交替、匿名函数、toString的巧妙。
+让我们来解释这个过程：add(3)(4)(5)
+1、先执行add(3)，此时m=3，并且返回temp函数；
+2、执行temp(4)，这个函数内执行add(m+n)，n是此次传进来的数值4，m值还是上一步中的3，所以add(m+n)=add(3+4)=add(7)，此时m=7，并且返回temp函数
+3、执行temp(5)，这个函数内执行add(m+n)，n是此次传进来的数值5，m值还是上一步中的7，所以add(m+n)=add(7+5)=add(12)，此时m=12，并且返回temp函数
+4、关键性一步来了，后面没有传入参数，等于返回的temp函数不被执行而是打印，了解JS的朋友都知道对象的toString是修改对象转换字符串的方法，因此代码中temp函数的toString函数return m值，而m值是最后一步执行函数时的值m=12，所以返回值是12。
+看到这其实就很明白了，代码中temp.toString的重写只是为了函数不执行时能够返回最后运算的结果值，所以这个地方是可以任意修改的，你让它返回什么它就返回什么，比如改写：
+temp.toString = function () {
+return “total : ” + m;
+}
+
+执行结果：
+&amp;gt;&amp;gt;&amp;gt; add(3)(4)(5);
+total : 12
+
+2.第二种
+function add(x) {
+var sum = x;
+var tmp = function (y) {
+sum = sum + y;
+return tmp;
+};
+tmp.toString = function () {
+return sum;
+};
+return tmp;
+}
+console.log(add(1)(2)(3)); //6
+console.log(add(1)(2)(3)(4)); //10
+
+首先要一个数记住每次的计算值，所以使用了闭包，在tmp中记住了x的值，第一次调用add(),初始化了tmp，并将x保存在tmp的作用链中，然后返回tmp保证了第二次调用的是tmp函数，后面的计算都是在调用tmp, 因为tmp也是返回的自己，保证了第二次之后的调用也是调用tmp，而在tmp中将传入的参数与保存在作用链中x相加并付给sum，这样就保证了计算；
+但是在计算完成后还是返回了tmp这个函数，这样就获取不到计算的结果了，我们需要的结果是一个计算的数字那么怎么办呢，首先要知道JavaScript中，打印和相加计算，会分别调用toString或valueOf函数，所以我们重写tmp的toString和valueOf方法，返回sum的值。
+
+                                        </div>
+                                        
+                                            <a class="btn btn-text" href="https://flymoth.github.io/CeFL6i2EE/">Read More ~</a>
+                            </div>
+                </div>
+            </article>
+            
+            <article class="post i-card">
+                <h2 class="post-title">
+                    <a href="https://flymoth.github.io/pew26xKme/">
+                        用基本遍历实现JavaScript的indexOf和search方法的功能
+                    </a>
+                </h2>
+                <div class="post-info">
+                    <time class="post-time">2018-03-13</time>
+                    
+                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-other_1">
+            #JavaScript
+        </a>
+                        
+                </div>
+                <div class="post-article">
+                    
+                            <div class="post-content">
+                                
+                                        <div class="post-content-content">
+                                            1.indexOf
+indexOf() 方法可返回某个指定的字符串值在字符串中首次出现的位置。如果要检索的字符串值没有出现，则该方法返回 -1。
+2.search
+search() 方法用于检索字符串中指定的子字符串，或检索与正则表达式相匹配的子字符串。如果没有找到任何匹配的子串，则返回 -1。
+所以上面两个方法功能是一样的。
+下面，我们用基本遍历实现：
+function myIndexOf(a, b) {
+	let arr1 = Array.from(a)
+	let arr2 = Array.from(b)
+	if (arr1.length &amp;gt; arr2.length) {
+		return -1
+	}
+	for (let i = 0; i &amp;lt; arr2.length; i++) {
+		if (arr1[0] === arr2[i]) {
+			for (let j = 1; j &amp;lt; arr1.length; j++) {
+				if (arr1[j] !== arr2[i + j]) {
+					return -1
+				}
+				if (j === arr1.length - 1) {
+					return i
+				}
+			}
+		}
+	}
+}
+
+myIndexOf([4, 7, 8], [1, 2, 3, 4, 7, 8, 11, 5]) //3
+myIndexOf([4, 7, 9], [1, 2, 3, 4, 7, 8, 11, 5]) //-1
+
+
+                                        </div>
+                                        
+                                            <a class="btn btn-text" href="https://flymoth.github.io/pew26xKme/">Read More ~</a>
+                            </div>
+                </div>
+            </article>
+            
+            <article class="post i-card">
+                <h2 class="post-title">
+                    <a href="https://flymoth.github.io/zF98hmuA6/">
+                        Vue.js开发环境搭建(IDE:Webstorm OS:macOS10.13)
+                    </a>
+                </h2>
+                <div class="post-info">
+                    <time class="post-time">2018-01-30</time>
+                    
+                        <a href="https://flymoth.github.io/TTMNoXoIE/" class="post-tag i-tag
+                            i-tag-primary">
+            #Vue.js
+        </a>
+                        
+                        <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-other_1">
+            #JavaScript
+        </a>
+                        
+                </div>
+                <div class="post-article">
+                    
+                            <div class="post-content">
+                                
+                                        <div class="post-content-content">
+                                            由于mac非常人性化的将bash内置于终端中，因此可以直接在终端中使用bash命令。
+第一步： Mac OS系统安装 brew
+打开终端运行以下命令:
+
+　　　/usr/bin/ruby -e &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&amp;quot;
+
+
+第二步： 安装 node.js
+为了避免使用brew命令经常出错的情况，所以采用手动安装下载地址：https://nodejs.org/en/download/    （选择mac os）
+第三步： 获取nodejs模块安装目录访问权限  （必须步骤）
+
+sudo chmod -R 777 /usr/local/lib/node_modules/
+
+
+第四步： 安装 淘宝镜像 （cnpm）
+
+npm install -g cnpm --registry=https://registry.npm.taobao.org
+
+
+第五步：安装webpack
+
+cnpm install webpack -g
+
+
+第六步：安装vue脚手架
+
+npm install vue-cli -g
+
+
+第七步：在硬盘上找一个文件夹放工程用的，在终端中进入该目录
+
+cd 目录路径
+
+
+第八步：创建一个vue.js工程
+
+vue init webpack-simple 工程名字&amp;lt;工程名字不能用中文&amp;gt;
+
+
+第九步：安装项目依赖
+一定要从官方仓库安装，npm 服务器在国外所以这一步安装速度会很慢。
+
+npm install　　　　 （慎用）
+
+cnpm install　　　  （慎用）
+
+yarn  （推荐）
+
+
+第十步：安装 vue 路由模块vue-router和网络请求模块vue-resource
+
+yarn add vue-router vue-resource
+
+
+第十一步：启动项目
+
+yarn run dev
+
+
+
+                                        </div>
+                                        
+                                            <a class="btn btn-text" href="https://flymoth.github.io/zF98hmuA6/">Read More ~</a>
+                            </div>
+                </div>
+            </article>
+            
                 <!-- 翻页 -->
                 
                 </div>
@@ -188,7 +797,7 @@ addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
                     <!-- 个人信息 -->
                     
     <div class="id_card i-card">
-        <div class="id_card-avatar" style="background-image: url(https://flymoth.github.io/images/avatar.png?v=1588217632097)">
+        <div class="id_card-avatar" style="background-image: url(https://flymoth.github.io/images/avatar.png?v=1588225548416)">
         </div>
         <h1 class="id_card-title">
             flymoth&#39;s blog 

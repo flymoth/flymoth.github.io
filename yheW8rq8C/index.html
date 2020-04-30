@@ -5,7 +5,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>
-    关于 | flymoth&#39;s blog 
+    axios简单封装使用 | flymoth&#39;s blog 
 </title>
 <link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588225548416">
 <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
@@ -106,26 +106,148 @@
                 <div id="content" class="main-container-left">
                     <article class="post i-card">
                         <h2 class="post-title">
-                            关于
+                            axios简单封装使用
                         </h2>
                         <div class="post-info">
-                            <time class="post-time">2019-01-25</time>
+                            <time class="post-time">2018-06-20</time>
                             
+                                <a href="https://flymoth.github.io/7eQGWBiUx/" class="post-tag i-tag
+                            i-tag-warning">
+                            #JavaScript
+                        </a>
+                                
                         </div>
                         
                                 <div class="post-content">
-                                    <blockquote>
-<p>欢迎来到我的小站呀，很高兴遇见你！🤝</p>
-</blockquote>
-<h2 id="关于本站">🏠 关于本站</h2>
-<h2 id="博主是谁">👨‍💻 博主是谁</h2>
-<h2 id="兴趣爱好">⛹ 兴趣爱好</h2>
-<h2 id="联系我呀">📬 联系我呀</h2>
+                                    <h1 id="1安装并引入">1.安装并引入</h1>
+<pre><code>yarn add axios
+import axios from 'axios' //在js文件中引入
+</code></pre>
+<h1 id="2配置">2.配置</h1>
+<pre><code>axios.defaults.timeout = 5000
+axios.defaults.baseURL = 'http://localhost:8080'
+axios.defaults.withCredentials = true
+</code></pre>
+<h1 id="3请求拦截与响应拦截">3.请求拦截与响应拦截</h1>
+<pre><code>// 请求拦截
+axios.interceptors.request.use(
+  config =&gt; {
+    // 配置通用参数
+    return config
+  },
+  err =&gt; {
+    return Promise.reject(err)
+  }
+)
+
+// 响应拦截
+axios.interceptors.response.use(
+  response =&gt; {
+    if (response) {
+      // 响应处理
+    }
+    return response
+  },
+  error =&gt; {
+    return Promise.reject(error.response.data)
+  }
+)
+</code></pre>
+<h1 id="4封装get-post-put-delete请求">4.封装get post put delete请求</h1>
+<pre><code>/**
+ * get请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const get = (url, params) =&gt; {
+  return new Promise(async (resolve, reject) =&gt; {
+    try {
+      const res = await axios.get(url, {
+        params: params
+      })
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+/**
+ * post请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const post = (url, params) =&gt; {
+  return new Promise(async (resolve, reject) =&gt; {
+    try {
+      const res = await axios.post(url, params)
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+/**
+ * put请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const put = (url, params) =&gt; {
+  return new Promise(async (resolve, reject) =&gt; {
+    try {
+      const res = await axios.put(url, params)
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+/**
+ * delete请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const del = (url, params) =&gt; {
+  return new Promise(async (resolve, reject) =&gt; {
+    try {
+      const res = await axios.delete(url, {
+        data: params
+      })
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+</code></pre>
+<h1 id="5导出">5.导出</h1>
+<pre><code>export default {
+  get,
+  post,
+  put,
+  del
+}
+</code></pre>
 
                                 </div>
                     </article>
                     <!--  -->
                     
+                        <div class="next-post">
+                            <div class="next">下一篇</div>
+                            <a href="https://flymoth.github.io/_KYv4LUL0/">
+                                <h3 class="post-title">
+                                    ES6 数组方法map(),filter(),reduce()和find()
+                                </h3>
+                            </a>
+                        </div>
+                        
                             <div id="disqus_thread"></div>
                             <div id="gitalk-container"></div>
                 </div>
@@ -140,14 +262,11 @@
         <div class="toc-title i-card-title">目录</div>
         <div class="toc-content">
             <ul class="markdownIt-TOC">
-<li>
-<ul>
-<li><a href="#%E5%85%B3%E4%BA%8E%E6%9C%AC%E7%AB%99">🏠 关于本站</a></li>
-<li><a href="#%E5%8D%9A%E4%B8%BB%E6%98%AF%E8%B0%81">👨‍💻 博主是谁</a></li>
-<li><a href="#%E5%85%B4%E8%B6%A3%E7%88%B1%E5%A5%BD">⛹ 兴趣爱好</a></li>
-<li><a href="#%E8%81%94%E7%B3%BB%E6%88%91%E5%91%80">📬 联系我呀</a></li>
-</ul>
-</li>
+<li><a href="#1%E5%AE%89%E8%A3%85%E5%B9%B6%E5%BC%95%E5%85%A5">1.安装并引入</a></li>
+<li><a href="#2%E9%85%8D%E7%BD%AE">2.配置</a></li>
+<li><a href="#3%E8%AF%B7%E6%B1%82%E6%8B%A6%E6%88%AA%E4%B8%8E%E5%93%8D%E5%BA%94%E6%8B%A6%E6%88%AA">3.请求拦截与响应拦截</a></li>
+<li><a href="#4%E5%B0%81%E8%A3%85get-post-put-delete%E8%AF%B7%E6%B1%82">4.封装get post put delete请求</a></li>
+<li><a href="#5%E5%AF%BC%E5%87%BA">5.导出</a></li>
 </ul>
 
         </div>

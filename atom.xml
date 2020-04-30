@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://flymoth.github.io</id>
     <title>flymoth&apos;s blog </title>
-    <updated>2020-04-30T03:33:53.335Z</updated>
+    <updated>2020-04-30T05:46:06.893Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://flymoth.github.io"/>
     <link rel="self" href="https://flymoth.github.io/atom.xml"/>
@@ -57,6 +57,694 @@ addEventListener('scroll', throttle(fn,1000,1))
     console.log(n)
 }
 addEventListener('scroll', debounce(fn, 1000,2))
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[移动端滚动穿透的解决方案]]></title>
+        <id>https://flymoth.github.io/1PXabsDk4/</id>
+        <link href="https://flymoth.github.io/1PXabsDk4/">
+        </link>
+        <updated>2019-02-28T10:41:42.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="一在滚动区域先下滑再上滑导致无法滚动">一.在滚动区域先下滑再上滑导致无法滚动</h1>
+<h3 id="1情景复现">1.情景复现</h3>
+<p>当弹出层内容可以滚动时，如果我们直接往上滑，是可以正常触发滚动的，但是如果当内容已经滚动到顶部时，我们先往下滑，再往上滑就无法触发内容滚动了。</p>
+<h3 id="2问题分析">2.问题分析</h3>
+<p>这个问题我把它归到滚动穿透的底层可以滚动，弹出层可以滚动一类。其原因就是当弹出层无法滚动时，滚动时间会想外层dom传递，也就是被底层给捕获率，从而引起底层滚动。我们通常的解决方案是给底层加上overflow:hidden和position:fixed去禁止底层滚动，但这种方法并不能解决上面的问题，而且会导致顶层可滚动区域回到顶部。下面我介绍的这种方案可以完美解决滚动穿透和无法滚动的问题，同时也不会导致底层内容回到顶部。</p>
+<h3 id="3方案原理">3.方案原理</h3>
+<p>监听touchmove事件，判断开始滑动时是否在顶部，若是则阻止默认事件，方式滚动传递出去，若不是，则不作操作。<br>
+需要做的事情有：<br>
+1、预存一个全局变量targetY<br>
+2、监听可滚动区域的touchstart事件，记录下第一次按下时的<br>
+e.targetTouches[0].clientY值，赋值给targetY<br>
+3、后期touchmove里边获取每次的e.targetTouches[0].clientY与第一次的进行比较，可以得出用户是上滑还是下滑手势。<br>
+4、如果手势是向上滑，且页面现在滚动的位置刚好是整个可滚动高度——弹窗内容可视区域高度的值，说明上滑到底，阻止默认事件。<br>
+同理，如果手势是向下滑，并且当前滚动高度为0说明当前展示的已经在可滚动内容的顶部了，此时再次阻止默认事件即可。</p>
+<h3 id="4代码案例">4.代码案例</h3>
+<pre><code>&lt;div id=&quot;des-container-wrapper&quot;     
+        @touchstart=&quot;leftTouchStart&quot;     
+        @touchmove=&quot;leftTouchMove&quot;&gt;  //弹出层滚动区域容器
+    &lt;section class=&quot;des-container&quot; v-for=&quot;item in modelData&quot; :key=&quot;item.id&quot;&gt;
+        &lt;h1 class=&quot;des-title&quot; v-if=&quot;item.question&quot;&gt;{{item.question}}&lt;/h1&gt;
+        &lt;div class=&quot;des-content&quot; v-html=&quot;item.answer&quot;&gt;&lt;/div&gt;
+    &lt;/section&gt;
+&lt;/div&gt;
+data(){
+    return {
+        targetLeftY: 0,
+    }
+},
+methods:{
+    leftTouchStart(e) {
+        this.targetLeftY = Math.floor(e.targetTouches[0].clientY);
+    },
+    leftTouchMove(e) {
+        let newTargetY = Math.floor(e.targetTouches[0].clientY);
+        let dom = document.getElementById('des-container-wrapper');
+        let sT = dom.scrollTop;
+        let sH = dom.scrollHeight;
+        let cH = dom.clientHeight;
+        if (sT &lt;= 0 &amp;&amp; newTargetY - this.targetLeftY &gt; 0) {
+            e.preventDefault();
+        } else if ((sT &gt;= sH - cH) &amp;&amp; newTargetY - this.targetLeftY &lt; 0) {
+            e.preventDefault();
+        }
+    },
+},
+</code></pre>
+<h1 id="二其他常见方案">二.其他常见方案</h1>
+<h3 id="1解决方案">1.解决方案：</h3>
+<p>弹层出现时，用css给body设置固定定位和超出隐藏。<br>
+至于弹层内部的滚动，设置一个overflow: scroll;即可。<br>
+不过为了流畅体验，可以加上-webkit-overflow-scrolling: touch，以解决在IOS上滚动惯性失效的问题，提高滚动的流畅度。</p>
+<pre><code>        //弹窗显示
+        document.body.style.overflow = 'hidden'
+        document.body.style.position = 'fixed'
+        //弹窗隐藏
+        document.body.style.overflow = 'auto'
+        document.body.style.position = 'static'
+        //弹窗滚动容器样式
+        overflow-y: scroll
+        -webkit-overflow-scrolling: touch
+</code></pre>
+<h3 id="2局限问题">2.局限问题：</h3>
+<p>若用户在body层滚动了很长的距离再打开弹出层，这种方案会导致body层回到顶部，那么就需要在打开弹出层之前记录body层的位置，在关闭弹出层之后将body层位置还原。弹层中内容滚动到顶部或底部后，还会连带页面body一起滚动。也就是还会发生穿透效果。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[vue-router+webpack部署nginx刷新404问题与解决方案]]></title>
+        <id>https://flymoth.github.io/CmC9cYr3b/</id>
+        <link href="https://flymoth.github.io/CmC9cYr3b/">
+        </link>
+        <updated>2018-07-20T11:43:21.000Z</updated>
+        <content type="html"><![CDATA[<p>#1.问题：<br>
+使用Vue.js框架，利用vue-route结合webpack编写了一个单页路由项目，运维协助在服务器端配置nginx。部署完成后，访问首页没问题，从首页里打开二级页面没问题，但是所有的二级页面打开后，再次刷新，就会出现404现象。</p>
+<p>#2.原因：<br>
+刷新页面时访问的资源在服务端找不到，因为vue-router设置的路径不是真实存在的路径。如上的404现象，是因为在nginx配置的根目录/Data/app/xqsj_wx/dist下面压根没有loading这个真实资源存在，这些访问资源都是在js里渲染的。<br>
+服务端nginx的一开始配置如下（假设域名为：flymoth.com）：</p>
+<pre><code>         server {
+         listen 80;
+
+         server_name flymoth.com;
+         root /Data/app/xqsj_wx/dist;
+         index index.html;
+
+         access_log /var/log/testwx.log main;
+
+         }
+</code></pre>
+<p>如上出现404的原因是由于在这个域名根目录/Data/app/xqsj_wx/dist下面压根就没有loading这个真实目录存在。<br>
+#3.解决方案<br>
+在nginx配置里添加vue-route的跳转设置（这里首页是index.html，如果是index.php就在下面对应位置替换），正确配置如下：</p>
+<pre><code>server {
+         listen 80;
+
+         server_name testwx.wangshibo.com;
+         root /Data/app/xqsj_wx/dist;
+         index index.html;
+         access_log /var/log/testwx.log main;
+          // 这里
+         location / {
+             try_files $uri $uri/ @router;
+             index index.html;
+         }
+
+        location @router {
+            rewrite ^.*$ /index.html last;
+        }
+
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[阿里云CentOS7.4安装MySQL8.0并配置远程访问]]></title>
+        <id>https://flymoth.github.io/D5d8guW9E/</id>
+        <link href="https://flymoth.github.io/D5d8guW9E/">
+        </link>
+        <updated>2018-07-12T05:38:23.000Z</updated>
+        <content type="html"><![CDATA[<h5 id="1-首先进入本机的源文件目录">1. 首先进入本机的源文件目录</h5>
+<pre><code>cd /usr/local/src
+</code></pre>
+<h5 id="2-使用wget下载官方yum源的rpm包"><strong>2. 使用wget下载官方yum源的rpm包：</strong></h5>
+<pre><code>wget https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm
+</code></pre>
+<h5 id="3-安装rpm包">3. 安装rpm包</h5>
+<pre><code>rpm -ivh mysql80-community-release-el7-1.noarch.rpm
+</code></pre>
+<h5 id="4-再次使用yum来安装mysql-server">4. 再次使用yum来安装mysql-server</h5>
+<pre><code>yum install -y mysql-server
+</code></pre>
+<h5 id="5-安装完成后启动mysqld服务">5. 安装完成后，启动mysqld服务</h5>
+<pre><code>systemctl start mysqld
+</code></pre>
+<p>查看是否成功启动：</p>
+<pre><code>ps aux|grep mysqld
+</code></pre>
+<h5 id="6-设置mysqld服务开机自启动">6. 设置mysqld服务开机自启动</h5>
+<pre><code>systemctl enable mysqld
+</code></pre>
+<h5 id="7-使用初始密码登录">7. 使用初始密码登录</h5>
+<p>由于MySQL从5.7开始不允许首次安装后，使用空密码进行登录，系统会随机生成一个密码以供管理员首次登录使用，这个密码记录在/var/log/mysqld.log文件中，使用下面的命令可以查看此密码：</p>
+<pre><code>cat /var/log/mysqld.log|grep 'A temporary password'
+2017-11-12T13:35:37.013617Z 1 [Note] A temporary password is generated for root@localhost: b
+</code></pre>
+<p>最后一行冒号后面的部分<code>bkv,dy,)o7Ss</code>就是初始密码。  使用此密码登录MySQL:</p>
+<pre><code>mysql -u root -p
+</code></pre>
+<h5 id="8-更改默认密码">8. 更改默认密码</h5>
+<p>切换数据库：</p>
+<pre><code>use mysql;
+</code></pre>
+<p>修改<code>root</code>密码：</p>
+<pre><code>alter user 'root'@'localhost' identified by 'your_password';
+</code></pre>
+<p>将<code>your_password</code>替换成你自己的密码就可以了，当然，这个密码是强密码，要求密码包含大小写字母、数字及标点符号，长度应该在6位以上。<br>
+重新使用新的密码登录，如果可以正常登录说明你的MySQL已经成功安装在CentOS 7.4上了.</p>
+<h5 id="9设置mysql远程访问">9.设置Mysql远程访问</h5>
+<p>首先进入数据库，使用系统数据库mysql</p>
+<pre><code>mysql -u root -p 
+use mysql
+update user set host ='%'where user ='root' and host ='localhost';
+flush privileges;
+</code></pre>
+<p>这时候连接此服务器的mysql客户端需要重新启动下，然后再连接此服务器.</p>
+<p>防火墙设置一下，不然3306端口还是无法访问</p>
+<pre><code>iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
+</code></pre>
+<p>设置完之后，查看一下是否能通过</p>
+<pre><code>iptables -L -n
+</code></pre>
+<p>(<img src="https://upload-images.jianshu.io/upload_images/3574939-d83bdac6837306a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="成功图片" loading="lazy"><br>
+)</p>
+<p>如果想要限制访问</p>
+<pre><code>iptables -D INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[阿里云CentOS7.4配置vsftpd]]></title>
+        <id>https://flymoth.github.io/IDfF6T7U9/</id>
+        <link href="https://flymoth.github.io/IDfF6T7U9/">
+        </link>
+        <updated>2018-06-28T13:46:43.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="安装">安装</h3>
+<pre><code>yum install -y vsftpd   // 安装
+
+systemctl start vsftpd.service   // 启动vsftpd服务
+</code></pre>
+<h3 id="ftp权限配置">ftp权限配置：</h3>
+<p>vsftpd 的配置目录为 /etc/vsftpd，包含下列的配置文件：</p>
+<p>1、vsftpd.conf // 主配置文件</p>
+<p>2、ftpusers // 禁止访问 FTP 服务器的用户列表</p>
+<p>3、user_list // 用户访问控制</p>
+<p>这里只做简单配置，禁止切换目录。编辑 /etc/vsftpd/vsftpd.conf，找到下面两处配置并修改：</p>
+<pre><code>anonymous_enable=NO     (改为NO)          // 禁用匿名用户 
+
+chroot_local_user=YES   (改为YES)         // 禁止切换根目录
+</code></pre>
+<h4 id="切换目录权限配置">切换目录权限配置：</h4>
+<p>chroot_list_enable=YES/NO（NO）</p>
+<p>设置是否启用chroot_list_file配置项指定的用户列表文件。默认值为NO。</p>
+<p>chroot_list_file=/etc/vsftpd/chroot_list</p>
+<p>用于指定用户列表文件，该文件用于控制哪些用户可以切换到用户家目录的上级目录。</p>
+<p>chroot_local_user=YES/NO（NO）</p>
+<p>用于指定用户列表文件中的用户是否允许切换到上级目录。默认值为NO。</p>
+<pre><code>通过搭配能实现以下几种效果：
+
+
+1、当chroot_list_enable=YES，chroot_local_user=YES时，在/etc/vsftpd.chroot_list文件中列出的用户，可以切换到其他目录；未在文件中列出的用户，不能切换到其他目录。
+
+
+2、当chroot_list_enable=YES，chroot_local_user=NO时，在/etc/vsftpd.chroot_list文件中列出的用户，不能切换到其他目录；未在文件中列出的用户，可以切换到其他目录。
+
+
+3、当chroot_list_enable=NO，chroot_local_user=YES时，所有的用户均不能切换到其他目录。
+
+
+4、当chroot_list_enable=NO，chroot_local_user=NO时，所有的用户均可以切换到其他目录。
+</code></pre>
+<p>故上面配置属于第三种情况，所有用户不能切换到其他目录。</p>
+<p>如果使用情况1或者情况2时，要在/etc/vsftpd下新建chroot_list文件，配置相关用户。</p>
+<p>重启服务：</p>
+<pre><code>systemctl restart vsftpd.service
+</code></pre>
+<pre><code>创建一个用户 ftpuser
+useradd ftpuser
+
+限制用户 ftpuser只能通过 FTP 访问服务器，而不能直接登录服务器：
+usermod -s /sbin/nologin ftpuser
+</code></pre>
+<h4 id="上面两步可以合二为一">上面两步可以合二为一：</h4>
+<pre><code>useradd ftpuser -s /sbin/nologin
+</code></pre>
+<p>为用户 ftpuser 设置密码</p>
+<pre><code>方法一：
+echo &quot;keenjaan&quot; | passwd ftpuser --stdin
+
+方法二：
+passwd ftpuser
+输入两遍密码即可
+</code></pre>
+<h3 id="25-为用户分配主目录">2.5 为用户分配主目录</h3>
+<p>在/var中创建相关的目录</p>
+<pre><code>mkdir -p /var/ftp/pub
+</code></pre>
+<p>配置主目录即目录权限配置：</p>
+<pre><code>/var/ftp            // 为主目录, 该目录只能读，不能写和执行
+
+/var/ftp/pub        // 文件具有读、写、执行权限
+</code></pre>
+<p>设置访问权限</p>
+<pre><code>chmod a-w /var/ftp
+chmod 777 -R /var/ftp/pub
+
+对ftp文件：有读取权限，没有写入权限。
+
+对pub文件及其所有子文件：最高权限，读写，执行。
+</code></pre>
+<p>关于chmod命令：参考这个连接<a href="https://link.jianshu.com/?t=http://www.linuxyw.com/linux/wenjianguanli/20130429/148.html">传送门</a></p>
+<pre><code>chmod [-cfvR] [--help] [--version] mode file...
+
+参数 :
+　　mode : 权限设定字串，格式如下 : [ugoa...][[+-=][rwxX]...][,...]，其中
+u 表示该文件的拥有者[user]，
+g 表示与该文件的拥有者属于组(group)，
+o 表示其他用户[other]，
+a 表示这三者皆是[all]。（常用）
+
++ 表示增加权限、（常用）
+- 表示取消权限、（常用）
+= 表示唯一设定权限。
+
+r 表示有可读取的权限，
+w 表示有可写入的权限，
+x 表示有可执行的权限，
+X 表示只有当该文件是个子目录或者该文件已经被设定过为可执行。
+
+-c : 若该文件权限确实已经更改，才显示其更改动作
+-f : 若该文件权限无法被更改也不要显示错误讯息
+-v : 显示权限变更的详细资料
+-R : 对目前目录下的所有文件与子目录进行相同的权限变更  （常用）
+--help : 显示帮助
+--version : 显示版本
+
+r=4，
+w=2，
+x=1
+rwx属性则4+2+1=7；
+rw-属性则4+2=6；
+r-x属性则4+1=5。
+</code></pre>
+<p>设置为用户的主目录：</p>
+<pre><code>usermod -d /var/ftp ftpuser
+</code></pre>
+<p>#####开启被动模式<br>
+配置文件添加</p>
+<pre><code>pasv_enable=YES
+pasv_min_port=30000
+pasv_max_port=31000
+</code></pre>
+<p>在阿里云安全组中开放21端口号。<br>
+#####删除用户</p>
+<pre><code>userdel -r ftpuser
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[阿里云CentOS7.4安装Node.js8.11.3和MongoDB4.0]]></title>
+        <id>https://flymoth.github.io/0PTTHuDRP/</id>
+        <link href="https://flymoth.github.io/0PTTHuDRP/">
+        </link>
+        <updated>2018-06-24T12:40:08.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="一安装nodejs">一.安装Node.js</h1>
+<p>#推荐使用NVM安装管理Node版本，详见：https://www.jianshu.com/p/c121ab4e4459<br>
+终端工具我用的是<img src="https://upload-images.jianshu.io/upload_images/3574939-e769fddf62d5bedc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Termius" loading="lazy"></p>
+<h5 id="1更新yum">1.更新yum</h5>
+<pre><code>yum -y update
+</code></pre>
+<h5 id="2安装一组用来编译源代码的开发工具">2.安装一组用来编译源代码的开发工具：</h5>
+<pre><code>yum -y groupinstall &quot;Development Tools&quot;
+</code></pre>
+<h5 id="3开始安装nodejs先进入usrsrc文件夹这个文件夹通常用来存放软件源代码">3.开始安装Node.js，先进入/usr/src文件夹，这个文件夹通常用来存放软件源代码</h5>
+<pre><code>cd /usr/src
+</code></pre>
+<h5 id="4从nodejs的站点中获取压缩档源代码-我选择的版本为v8113">4.从<strong>Node.js的站点</strong><em>中获取压缩档源代码, 我选择的版本为v8.11.3：</em></h5>
+<pre><code>wget http://nodejs.org/dist/v8.11.3/node-v8.11.3.tar.gz
+</code></pre>
+<h5 id="5解压缩源文件并且进入到压缩后的文件夹中">5.解压缩源文件，并且进入到压缩后的文件夹中:</h5>
+<pre><code>tar zxf node-v8.11.3.tar.gz
+cd node-v8.11.3
+</code></pre>
+<h5 id="6执行配置脚本来进行编译预处理">6.执行配置脚本来进行编译预处理:</h5>
+<pre><code>./configure
+</code></pre>
+<h5 id="7开始编译源代码">7.开始编译源代码</h5>
+<pre><code>make
+</code></pre>
+<h5 id="8当编译完成后我们需要使之在系统范围内可用-编译后的二进制文件将被放置到系统路径默认情况下node二进制文件应该放在userlocalbinnode文件夹下">8.当编译完成后，我们需要使之在系统范围内可用, 编译后的二进制文件将被放置到系统路径，默认情况下，Node二进制文件应该放在/user/local/bin/node文件夹下:</h5>
+<pre><code>make install
+</code></pre>
+<h5 id="9现在已经安装了nodejs-可以开始部署应用程序-首先要使用nodejs的应用管理模块pm2用于启动程序并在需要时重启非常有用的模块">9.现在已经安装了Node.js, 可以开始部署应用程序。首先要使用Node.js的应用管理模块，pm2(用于启动程序并在需要时重启非常有用的模块）：</h5>
+<pre><code>npm -g install pm2
+</code></pre>
+<h5 id="10建立超级链接-不然-sudo-node-时会报-command-not-found">10.建立超级链接, 不然 sudo node 时会报 &quot;command not found&quot;</h5>
+<pre><code>sudo ln -s /usr/local/bin/node /usr/bin/node 
+sudo ln -s /usr/local/lib/node /usr/lib/node 
+sudo ln -s /usr/local/bin/npm /usr/bin/npm
+</code></pre>
+<h5 id="11检查npm-node是否安装成功">11.检查npm node是否安装成功</h5>
+<pre><code>npm -v
+node -v
+</code></pre>
+<h1 id="二安装mongodb数据库">二.安装MongoDB数据库</h1>
+<p>我采用的是yum方式</p>
+<h5 id="1配置repo">1.配置.repo，</h5>
+<ul>
+<li>创建</li>
+</ul>
+<pre><code>vi /etc/yum.repos.d/mongodb-org-4.0.repo
+</code></pre>
+<pre><code>[mongodb-org-4.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
+</code></pre>
+<h5 id="2安装">2.安装</h5>
+<pre><code>yum install -y mongodb-org
+</code></pre>
+<p>#####安装完毕后修改配置文件:</p>
+<pre><code>vi /etc/mongod.conf
+</code></pre>
+<p>修改配置文件的 bind_ip, 默认是 127.0.0.1 只限于本机连接。所以安装完成后必须把这个修改为 0.0.0.0 ,否则通过别的机器是没法连接的!</p>
+<h5 id="3运行-停止与重启">3.运行、停止与重启</h5>
+<pre><code>systemctl start mongod.service
+systemctl stop mongod.service
+systemctl restart mongod.service
+</code></pre>
+<h5 id="4设置开机启动与关闭开机启动">4.设置开机启动与关闭开机启动</h5>
+<pre><code>systemctl enable mongod.service
+systemctl disable mongod.service
+</code></pre>
+<h5 id="5删除包">5.删除包</h5>
+<pre><code>yum erase $(rpm -qa | grep mongodb-org)
+</code></pre>
+<h5 id="6清理文件">6.清理文件</h5>
+<pre><code>sudo rm -r /var/log/mongodb
+sudo rm -r /var/lib/mongo
+</code></pre>
+<h5 id="7检测后台进程是否存在">7.检测后台进程是否存在</h5>
+<pre><code>ps -ef |grep mongo
+</code></pre>
+<h5 id="8检测27017端口是否在监听">8.检测27017端口是否在监听</h5>
+<pre><code>netstat -lntp | grep 27017
+</code></pre>
+<h5 id="9查看日志文件">9.查看日志文件</h5>
+<pre><code>cat /var/log/mongodb/mongod.log
+</code></pre>
+<h5 id="10常用命令">10.常用命令</h5>
+<pre><code>mongo
+ 
+## 查看数据库
+&gt; show dbs;
+ 
+## 查看数据库版本
+&gt; db.version();
+ 
+## 常用命令帮助
+&gt; db.help();
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[axios简单封装使用]]></title>
+        <id>https://flymoth.github.io/yheW8rq8C/</id>
+        <link href="https://flymoth.github.io/yheW8rq8C/">
+        </link>
+        <updated>2018-06-20T05:36:21.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="1安装并引入">1.安装并引入</h1>
+<pre><code>yarn add axios
+import axios from 'axios' //在js文件中引入
+</code></pre>
+<h1 id="2配置">2.配置</h1>
+<pre><code>axios.defaults.timeout = 5000
+axios.defaults.baseURL = 'http://localhost:8080'
+axios.defaults.withCredentials = true
+</code></pre>
+<h1 id="3请求拦截与响应拦截">3.请求拦截与响应拦截</h1>
+<pre><code>// 请求拦截
+axios.interceptors.request.use(
+  config =&gt; {
+    // 配置通用参数
+    return config
+  },
+  err =&gt; {
+    return Promise.reject(err)
+  }
+)
+
+// 响应拦截
+axios.interceptors.response.use(
+  response =&gt; {
+    if (response) {
+      // 响应处理
+    }
+    return response
+  },
+  error =&gt; {
+    return Promise.reject(error.response.data)
+  }
+)
+</code></pre>
+<h1 id="4封装get-post-put-delete请求">4.封装get post put delete请求</h1>
+<pre><code>/**
+ * get请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const get = (url, params) =&gt; {
+  return new Promise(async (resolve, reject) =&gt; {
+    try {
+      const res = await axios.get(url, {
+        params: params
+      })
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+/**
+ * post请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const post = (url, params) =&gt; {
+  return new Promise(async (resolve, reject) =&gt; {
+    try {
+      const res = await axios.post(url, params)
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+/**
+ * put请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const put = (url, params) =&gt; {
+  return new Promise(async (resolve, reject) =&gt; {
+    try {
+      const res = await axios.put(url, params)
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+/**
+ * delete请求
+ * @param url
+ * @param params
+ * @returns {Promise}
+ */
+const del = (url, params) =&gt; {
+  return new Promise(async (resolve, reject) =&gt; {
+    try {
+      const res = await axios.delete(url, {
+        data: params
+      })
+      resolve(res)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+</code></pre>
+<h1 id="5导出">5.导出</h1>
+<pre><code>export default {
+  get,
+  post,
+  put,
+  del
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ES6 数组方法map(),filter(),reduce()和find()]]></title>
+        <id>https://flymoth.github.io/_KYv4LUL0/</id>
+        <link href="https://flymoth.github.io/_KYv4LUL0/">
+        </link>
+        <updated>2018-06-14T05:37:56.000Z</updated>
+        <content type="html"><![CDATA[<p>#1.map()方法<br>
+#####map函数可以看成是一种映射函数，而且是一一映射。</p>
+<pre><code>let arr = [1, 2, 3, 4, 5]
+
+function mapFun() {
+    return arr.map(i =&gt; i + 10)
+}
+console.log(mapFun()) //[ 11, 12, 13, 14, 15 ]
+</code></pre>
+<p>#2.filter()方法<br>
+#####filter函数可以看成是一个过滤函数，返回符合条件的元素的数组。</p>
+<p>filter和map的区别：filter需要在循环的时候判断一下是true还是false，是true才会返回这个元素；map没有这个过程。</p>
+<pre><code>function filterFun() {
+    return arr.filter(i =&gt; i &gt; 3)
+}
+console.log(filterFun())  //[ 4, 5 ]
+</code></pre>
+<p>#3.reduce()方法<br>
+#####reduce函数可以理解成一个迭代函数。</p>
+<pre><code>function reduceFun() {
+    return arr.reduce((sum, i) =&gt; {
+        sum += i
+        return sum
+    })
+}
+console.log(reduceFun()) //15
+</code></pre>
+<p>reduce函数有四个参数：之前值，当前值，索引值，数组本身。</p>
+<pre><code>array.reduce((previous, current, index, array) =&gt;{
+
+函数体
+
+}, [initialValue])
+</code></pre>
+<p>previous值取决于[initialValue]。</p>
+<p>如果指定[initialValue]指定是，则作为previous的初始值，也可作为空数组[]。</p>
+<p>如果缺省的话，则将数组的第一个元素作为previous的初始值，下次循环时，之前值就是上一次的当前值，而当前值会变成下一个索引对应的元素，依次类推。<br>
+#4.find()方法<br>
+#####查找到第一个符合条件的元素，则立刻返回</p>
+<pre><code>function findFun() {
+    return arr.find(i =&gt; i &gt; 3)
+}
+console.log(findFun()) //4
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JavaScript实现add(1)(2)(3)(4)的调用方式]]></title>
+        <id>https://flymoth.github.io/CeFL6i2EE/</id>
+        <link href="https://flymoth.github.io/CeFL6i2EE/">
+        </link>
+        <updated>2018-06-13T09:40:36.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="1第一种">1.第一种</h1>
+<pre><code>var add = function (m) {
+ 
+    var temp = function (n) {
+        return add(m + n);
+    }
+ 
+    temp.toString = function () {
+        return m;
+    }
+ 
+    return temp;
+};
+ 
+ 
+add(3)(4)(5); // 12
+add(3)(6)(9)(25); // 43
+</code></pre>
+<p>这个add函数可以无限次调用循环调用，并且把所有传进去的值相加，最后返回相加总数。这道题咋一看有点特别，但代码量极其少而精，重点技术在于：作用域、交替、匿名函数、toString的巧妙。<br>
+让我们来解释这个过程：add(3)(4)(5)<br>
+1、先执行add(3)，此时m=3，并且返回temp函数；<br>
+2、执行temp(4)，这个函数内执行add(m+n)，n是此次传进来的数值4，m值还是上一步中的3，所以add(m+n)=add(3+4)=add(7)，此时m=7，并且返回temp函数<br>
+3、执行temp(5)，这个函数内执行add(m+n)，n是此次传进来的数值5，m值还是上一步中的7，所以add(m+n)=add(7+5)=add(12)，此时m=12，并且返回temp函数<br>
+4、关键性一步来了，后面没有传入参数，等于返回的temp函数不被执行而是打印，了解JS的朋友都知道对象的toString是修改对象转换字符串的方法，因此代码中temp函数的toString函数return m值，而m值是最后一步执行函数时的值m=12，所以返回值是12。<br>
+看到这其实就很明白了，代码中temp.toString的重写只是为了函数不执行时能够返回最后运算的结果值，所以这个地方是可以任意修改的，你让它返回什么它就返回什么，比如改写：</p>
+<pre><code>temp.toString = function () {
+return “total : ” + m;
+}
+</code></pre>
+<p>执行结果：</p>
+<pre><code>&gt;&gt;&gt; add(3)(4)(5);
+total : 12
+</code></pre>
+<h1 id="2第二种">2.第二种</h1>
+<pre><code>function add(x) {
+var sum = x;
+var tmp = function (y) {
+sum = sum + y;
+return tmp;
+};
+tmp.toString = function () {
+return sum;
+};
+return tmp;
+}
+console.log(add(1)(2)(3)); //6
+console.log(add(1)(2)(3)(4)); //10
+</code></pre>
+<p>首先要一个数记住每次的计算值，所以使用了闭包，在tmp中记住了x的值，第一次调用add(),初始化了tmp，并将x保存在tmp的作用链中，然后返回tmp保证了第二次调用的是tmp函数，后面的计算都是在调用tmp, 因为tmp也是返回的自己，保证了第二次之后的调用也是调用tmp，而在tmp中将传入的参数与保存在作用链中x相加并付给sum，这样就保证了计算；</p>
+<p>但是在计算完成后还是返回了tmp这个函数，这样就获取不到计算的结果了，我们需要的结果是一个计算的数字那么怎么办呢，首先要知道JavaScript中，打印和相加计算，会分别调用toString或valueOf函数，所以我们重写tmp的toString和valueOf方法，返回sum的值。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[用基本遍历实现JavaScript的indexOf和search方法的功能]]></title>
+        <id>https://flymoth.github.io/pew26xKme/</id>
+        <link href="https://flymoth.github.io/pew26xKme/">
+        </link>
+        <updated>2018-03-13T12:41:16.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="1indexof">1.indexOf</h1>
+<h6 id="indexof-方法可返回某个指定的字符串值在字符串中首次出现的位置-如果要检索的字符串值没有出现则该方法返回-1">indexOf() 方法可返回某个指定的字符串值在字符串中首次出现的位置。如果要检索的字符串值没有出现，则该方法返回 -1。</h6>
+<h1 id="2search">2.search</h1>
+<h6 id="search-方法用于检索字符串中指定的子字符串或检索与正则表达式相匹配的子字符串-如果没有找到任何匹配的子串则返回-1">search() 方法用于检索字符串中指定的子字符串，或检索与正则表达式相匹配的子字符串。如果没有找到任何匹配的子串，则返回 -1。</h6>
+<p>所以上面两个方法功能是一样的。<br>
+下面，我们用基本遍历实现：</p>
+<pre><code>function myIndexOf(a, b) {
+	let arr1 = Array.from(a)
+	let arr2 = Array.from(b)
+	if (arr1.length &gt; arr2.length) {
+		return -1
+	}
+	for (let i = 0; i &lt; arr2.length; i++) {
+		if (arr1[0] === arr2[i]) {
+			for (let j = 1; j &lt; arr1.length; j++) {
+				if (arr1[j] !== arr2[i + j]) {
+					return -1
+				}
+				if (j === arr1.length - 1) {
+					return i
+				}
+			}
+		}
+	}
+}
+
+myIndexOf([4, 7, 8], [1, 2, 3, 4, 7, 8, 11, 5]) //3
+myIndexOf([4, 7, 9], [1, 2, 3, 4, 7, 8, 11, 5]) //-1
 </code></pre>
 ]]></content>
     </entry>
