@@ -5,7 +5,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>
-    Gridea
+    防抖与节流函数的基本实现 | Gridea
 </title>
 <link rel="shortcut icon" href="https://flymoth.github.io/favicon.ico?v=1588216626997">
 <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
@@ -19,6 +19,7 @@
 <script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
 
 
+        
 </head>
 
 <body>
@@ -93,35 +94,29 @@
     });
 </script>
 
-            <div id="main-content" class="post-container main-container">
+            <div id="main-content" class="post-detail main-container">
+                <!-- left -->
                 <div id="content" class="main-container-left">
-                    
-        
-            <article class="post i-card">
-                <h2 class="post-title">
-                    <a href="https://flymoth.github.io/post/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">
-                        防抖与节流函数的基本实现
-                    </a>
-                </h2>
-                <div class="post-info">
-                    <time class="post-time">2020-04-30</time>
-                    
-                </div>
-                <div class="post-article">
-                    
-                            <div class="post-content">
-                                
-                                        <div class="post-content-content">
-                                            在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。
-通常这种情况下我们怎么去解决的呢？一般来讲，防抖和节流是比较好的解决方案。
-节流
-如果短时间内大量触发同一事件，那么在函数执行一次之后，该函数在指定的时间期限内不再工作，直至过了这段时间才重新生效。
- function throttle(fn, delay,...arguments) {
+                    <article class="post i-card">
+                        <h2 class="post-title">
+                            防抖与节流函数的基本实现
+                        </h2>
+                        <div class="post-info">
+                            <time class="post-time">2020-04-30</time>
+                            
+                        </div>
+                        
+                                <div class="post-content">
+                                    <p>在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。<br>
+通常这种情况下我们怎么去解决的呢？一般来讲，防抖和节流是比较好的解决方案。</p>
+<h2 id="节流">节流</h2>
+<p>如果短时间内大量触发同一事件，那么在函数执行一次之后，该函数在指定的时间期限内不再工作，直至过了这段时间才重新生效。</p>
+<pre><code> function throttle(fn, delay,...arguments) {
      let prev = Date.now()
      let args = [...arguments]
      return function () {
          let cur = Date.now()
-         if (cur - prev &amp;gt;= delay) {
+         if (cur - prev &gt;= delay) {
              fn.call(this, ...args)
              prev = Date.now()
          }
@@ -131,19 +126,19 @@
  function fn(n) {
     console.log(n)
 }
-addEventListener(&#39;scroll&#39;, throttle(fn,1000,1))
-
-防抖
-在第一次触发事件时，不立即执行函数，而是给出一个期限值比如200ms，然后：
-如果在200ms内没有再次触发滚动事件，那么就执行函数
-如果在200ms内再次触发滚动事件，那么当前的计时取消，重新开始计时
-效果：如果短时间内大量触发同一事件，只会执行一次函数。
- function debounce(fn, delay, ...arguments) {
+addEventListener('scroll', throttle(fn,1000,1))
+</code></pre>
+<h3 id="防抖">防抖</h3>
+<p>在第一次触发事件时，不立即执行函数，而是给出一个期限值比如200ms，然后：<br>
+如果在200ms内没有再次触发滚动事件，那么就执行函数<br>
+如果在200ms内再次触发滚动事件，那么当前的计时取消，重新开始计时<br>
+效果：如果短时间内大量触发同一事件，只会执行一次函数。</p>
+<pre><code> function debounce(fn, delay, ...arguments) {
      let timer = null
      let args = [...arguments]
      return function () {l
          clearTimeout(timer)
-         timer = setTimeout(() =&amp;gt; {
+         timer = setTimeout(() =&gt; {
              fn.call(this, ...args)
          }, delay)
      }
@@ -152,56 +147,72 @@ addEventListener(&#39;scroll&#39;, throttle(fn,1000,1))
  function fn(n) {
     console.log(n)
 }
-addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
+addEventListener('scroll', debounce(fn, 1000,2))
+</code></pre>
 
-
-                                        </div>
-                                        
-                                            <a class="btn btn-text" href="https://flymoth.github.io/post/fang-dou-yu-jie-liu-han-shu-de-ji-ben-shi-xian/">Read More ~</a>
-                            </div>
+                                </div>
+                    </article>
+                    <!--  -->
+                    
+                            <div id="disqus_thread"></div>
+                            <div id="gitalk-container"></div>
                 </div>
-            </article>
-            
-                <!-- 翻页 -->
-                
-                </div>
-                <!--  -->
+                <!-- middle -->
                 <div class="main-container-middle"></div>
-                <!--  -->
+                <!-- right -->
                 <div id="sidebar" class="main-container-right">
-
-                    <!-- 个人信息 -->
                     
-    <div class="id_card i-card">
-        <div class="id_card-avatar" style="background-image: url(https://flymoth.github.io/images/avatar.png?v=1588216626997)">
-        </div>
-        <h1 class="id_card-title">
-            Gridea
-        </h1>
-        <h2 class="id_card-description">
-            温故而知新
-        </h2>
-        <!--  -->
-        <div class="id_card-sns">
-            <!-- github -->
-            
-                    <!-- twitter -->
-                    
-                            <!-- weibo -->
-                            
-                                    <!-- facebook -->
-                                    
+                        <!-- toc -->
+                        
+    <div class="toc-card i-card ">
+        <div class="toc-title i-card-title">目录</div>
+        <div class="toc-content">
+            <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E8%8A%82%E6%B5%81">节流</a>
+<ul>
+<li><a href="#%E9%98%B2%E6%8A%96">防抖</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
         </div>
+        <script>
+            function locateCatelogList() {
+                /*获取文章目录集合,可通过:header过滤器*/
+                var alis = $('.post-content :header');
+                /*获取侧边栏目录列表集合**/
+                var sidebar_alis = $('.markdownIt-TOC a');
+                /*获取滚动条到顶部的距离*/
+                var scroll_height = $(window).scrollTop();
+                for (var i = 0; i < alis.length; i++) {
+                    /*获取锚点集合中的元素分别到顶点的距离*/
+                    var a_height = $(alis[i]).offset().top;
+                    if (a_height < scroll_height) {
+                        /*高亮显示*/
+                        sidebar_alis.removeClass('on');
+                        $(sidebar_alis[i]).addClass('on');
+                    }
+                }
+            }
+            $(function() {
+                /*绑定滚动事件 */
+                $(window).bind('scroll', locateCatelogList);
+            });
+        </script>
     </div>
     
-
-                        <!-- 公告栏 -->
-                        
+                            
 
                 </div>
-            </div>
 
+
+
+
+            </div>
 
 
             <div class="site-footer">
@@ -213,6 +224,7 @@ addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
   hljs.initHighlightingOnLoad()
 </script>
 
+
     </div>
     <script>
         $('#sidebar').stickySidebar({
@@ -220,6 +232,7 @@ addEventListener(&#39;scroll&#39;, debounce(fn, 1000,2))
             // bottomSpacing: 60
         });
     </script>
+    
 </body>
 
 </html>
